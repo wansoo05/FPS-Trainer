@@ -3,5 +3,10 @@
 /.vs
 /Build
 /Plugins
+/Binaries
+/DerivedDataCache
 *./sln
 *_BuiltData.uasset
+project.sln
+*.uproject
+*.vsconfig
