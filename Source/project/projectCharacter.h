@@ -37,6 +37,14 @@ class AprojectCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
+	/** Fire Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* FireAction;
+
+	/** Zoom Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ZoomAction;
+
 public:
 	AprojectCharacter();
 	
@@ -49,6 +57,11 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
+	/** Called for firing input */
+	void Fire(const FInputActionValue& Value);
+
+	/** Called for zooming input */
+	void Zoom(const FInputActionValue& Value);
 
 protected:
 	// APawn interface
@@ -62,5 +75,9 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+private:
+	UPROPERTY(VisibleAnywhere, Category = Input)
+	class UInputMappingContext* DefaultContext;
 };
 

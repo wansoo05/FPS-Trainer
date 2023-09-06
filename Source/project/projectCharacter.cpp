@@ -51,6 +51,40 @@ AprojectCharacter::AprojectCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Jump(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_Jump.IA_Jump"));
+	if (IA_Jump.Succeeded())
+	{
+		JumpAction = IA_Jump.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Look(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_Look.IA_Look"));
+	if (IA_Look.Succeeded())
+	{
+		LookAction = IA_Look.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Move(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_Move.IA_Move"));
+	if (IA_Move.Succeeded())
+	{
+		MoveAction = IA_Move.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Fire(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_Fire.IA_Fire"));
+	if (IA_Fire.Succeeded())
+	{
+		FireAction = IA_Fire.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Zoom(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_Zoom.IA_Zoom"));
+	if (IA_Zoom.Succeeded())
+	{
+		ZoomAction = IA_Zoom.Object;
+	}
 }
 
 void AprojectCharacter::BeginPlay()
@@ -86,8 +120,12 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AprojectCharacter::Look);
 
-	}
+		//Firing
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AprojectCharacter::Fire);
 
+		//Zooming
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &AprojectCharacter::Zoom);
+	}
 }
 
 void AprojectCharacter::Move(const FInputActionValue& Value)
@@ -124,6 +162,16 @@ void AprojectCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AprojectCharacter::Fire(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Fire!"));
+}
+
+void AprojectCharacter::Zoom(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Zoom!"));
 }
 
 
