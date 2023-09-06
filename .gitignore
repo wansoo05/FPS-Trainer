@@ -10,3 +10,5 @@
 project.sln
 *.uproject
 *.vsconfig
+Binaries
+/Binaries
