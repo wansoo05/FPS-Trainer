@@ -228,7 +228,6 @@ void AprojectCharacter::Fire(const FInputActionValue& Value)
 {
 	if (IsAttacking) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Fire!"));
 
 	RMAnim->playAttackMontage();
 	IsAttacking = true;
@@ -241,7 +240,6 @@ void AprojectCharacter::Zoom(const FInputActionValue& Value)
 
 void AprojectCharacter::RunStart(const FInputActionValue& Value)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("%f"), GetCharacterMovement()->MaxWalkSpeed);
 	GetCharacterMovement()->MaxWalkSpeed = 800.0f;
 }
 

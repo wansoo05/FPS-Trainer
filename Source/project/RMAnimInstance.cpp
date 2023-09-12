@@ -10,10 +10,15 @@ URMAnimInstance::URMAnimInstance()
 	currentPawnSpeed = 0.0f;
 	isInAir = false;
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/mixamo/Remy/animation/Fire_Rifle_Ironsights_Montage.Fire_Rifle_Ironsights_Montage"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/mixamo/Remy/animation/Fire_Rifle_Hip_Montage.Fire_Rifle_Hip_Montage"));
 	if (ATTACK_MONTAGE.Succeeded())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Fire!"));
 		attackMontage = ATTACK_MONTAGE.Object;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Fail!"));
 	}
 }
 
