@@ -9,6 +9,12 @@ URMAnimInstance::URMAnimInstance()
 {
 	currentPawnSpeed = 0.0f;
 	isInAir = false;
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/mixamo/Remy/animation/Fire_Rifle_Ironsights_Montage.Fire_Rifle_Ironsights_Montage"));
+	if (ATTACK_MONTAGE.Succeeded())
+	{
+		attackMontage = ATTACK_MONTAGE.Object;
+	}
 }
 
 void URMAnimInstance::NativeUpdateAnimation(float deltaSeconds)
@@ -19,10 +25,16 @@ void URMAnimInstance::NativeUpdateAnimation(float deltaSeconds)
 	if (::IsValid(Pawn))
 	{
 		currentPawnSpeed = Pawn->GetVelocity().Size();
+		currentDirection = CalculateDirection(Pawn->GetVelocity(),Pawn->GetActorRotation());
 		auto character = Cast<ACharacter>(Pawn);
 		if (character)
 		{
 			isInAir = character->GetMovementComponent()->IsFalling();
 		}
 	}
+}
+
+void URMAnimInstance::playAttackMontage()
+{
+	Montage_Play(attackMontage, 1.0f);
 }
