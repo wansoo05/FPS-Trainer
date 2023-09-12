@@ -7,8 +7,6 @@
 /DerivedDataCache
 *./sln
 *_BuiltData.uasset
-project.sln
-*.uproject
 *.vsconfig
 Binaries
 /Binaries
