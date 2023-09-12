@@ -98,20 +98,25 @@ AprojectCharacter::AprojectCharacter()
 		RunAction = IA_Run.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction>IA_Rifle(
-		TEXT("/Game/ThirdPerson/Input/Actions/IA_Rifle.IA_Rifle"));
-	if (IA_Rifle.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_ChangeWeaponUP(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_ChangeWeaponUP.IA_ChangeWeaponUP"));
+	if (IA_ChangeWeaponUP.Succeeded())
 	{
-		RifleAction = IA_Rifle.Object;
+		WeaponChangeUPAction = IA_ChangeWeaponUP.Object;
 	}
 
-	IsAttacking = false;
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_ChangeWeaponDown(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_ChangeWeaponDown.IA_ChangeWeaponDown"));
+	if (IA_ChangeWeaponDown.Succeeded())
+	{
+		WeaponChangeDownAction = IA_ChangeWeaponDown.Object;
+	}
 
 	FName WeaponSocket(TEXT("weapon"));
 	if (GetMesh()->DoesSocketExist(WeaponSocket))
 	{
 		Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WEAPON"));
-		static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_WEAPON(TEXT("/Game/Weapon/Riple/scarL"));
+		static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_WEAPON(TEXT("/Game/Weapon/Gun/gun/g18"));
 		if (SM_WEAPON.Succeeded())
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("weapon!"));
@@ -173,8 +178,16 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Triggered, this, &AprojectCharacter::RunStart);
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Completed, this, &AprojectCharacter::RunStop);
 
-		EnhancedInputComponent->BindAction(RifleAction, ETriggerEvent::Triggered, this, &AprojectCharacter::AttachRifle);
+		//Changing
+		EnhancedInputComponent->BindAction(WeaponChangeUPAction, ETriggerEvent::Triggered, this, &AprojectCharacter::WeaponChangeUP);
+		EnhancedInputComponent->BindAction(WeaponChangeDownAction, ETriggerEvent::Triggered, this, &AprojectCharacter::WeaponChangeDown);
 	}
+}
+
+void AprojectCharacter::CalculateHP(int Value)
+{
+	HP = HP += Value;
+	if (HP < 1) Die();
 }
 
 void AprojectCharacter::Move(const FInputActionValue& Value)
@@ -237,14 +250,61 @@ void AprojectCharacter::RunStop(const FInputActionValue& Value)
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 }
 
-void AprojectCharacter::AttachRifle(const FInputActionValue& Value)
+void AprojectCharacter::Load(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Load!"));
+}
+
+void AprojectCharacter::WeaponChangeUP(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("UP"));
+	WeaponChange(1);
+}
+
+void AprojectCharacter::WeaponChangeDown(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("DOWN"));
+	WeaponChange(-1);
+}
+
+void AprojectCharacter::WeaponChange(int Num)
+{
+	/* Num = 1 : UP
+	   Num = -1 : Down 
+	   WeaponState 1: Gun 2: Rifle 3: Sniper */
+
+	WeaponState += Num;
+
+	if (WeaponState == 0) WeaponState = 3;
+	else if (WeaponState == 4) WeaponState = 1;
+
+	if (WeaponState == 1) {
+		UStaticMesh* SM_Gun = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Gun/gun/SMg18")));
+		Weapon->SetStaticMesh(SM_Gun);
+	}
+	else if (WeaponState == 2) {
+		UStaticMesh* SM_Rifle = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Riple/scarL")));
+		Weapon->SetStaticMesh(SM_Rifle);
+	}
+	else if (WeaponState == 3) {
+		UStaticMesh* SM_Sniper = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Sniper/meshes/Sniper")));
+		Weapon->SetStaticMesh(SM_Sniper);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("%d: Weapon Change ERROR!!!!!!!!!!!!"), WeaponState);
+	}
 }
 
 void AprojectCharacter::onAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (!IsAttacking) return;
 	IsAttacking = false;
+}
+
+void AprojectCharacter::Die()
+{
+	/* Add isGround Check */
+	GetMesh()->PlayAnimation(DieAnim, false);
 }
 
 

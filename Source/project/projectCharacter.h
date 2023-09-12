@@ -62,27 +62,30 @@ public:
 
 protected:
 
-	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
-
-	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
-	/** Called for firing input */
 	void Fire(const FInputActionValue& Value);
-
-	/** Called for zooming input */
 	void Zoom(const FInputActionValue& Value);
 
-	/** Called for run input */
 	void RunStart(const FInputActionValue& Value);
 	void RunStop(const FInputActionValue& Value);
 
-	void AttachRifle(const FInputActionValue& Value);
+	void Load(const FInputActionValue& Value);
+
+	void WeaponChangeUP(const FInputActionValue& Value);
+	void WeaponChangeDown(const FInputActionValue& Value);
+	void WeaponChange(int Num);
+
+	void Die();
+
+	class UInputAction* WeaponChangeUPAction;
+	class UInputAction* WeaponChangeDownAction;
+	class UInputAction* LoadAction;
+	class UAnimSequence* DieAnim;
 
 	UFUNCTION()
 	void onAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
+	
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -91,19 +94,24 @@ protected:
 	virtual void BeginPlay();
 
 public:
-	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Input)
 	class UInputMappingContext* DefaultContext;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-	bool IsAttacking;
+	bool IsAttacking = false;
 
 	UPROPERTY()
 	class URMAnimInstance* RMAnim;
+
+	/* HP = HP + Value */
+	void CalculateHP(int Value);
+
+	UPROPERTY(VisibleAnywhere)
+	int HP = 100;
+
+	int WeaponState = 1;
 };
 
