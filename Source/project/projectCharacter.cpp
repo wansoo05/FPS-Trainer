@@ -229,8 +229,7 @@ void AprojectCharacter::Look(const FInputActionValue& Value)
 void AprojectCharacter::Fire(const FInputActionValue& Value)
 {
 	if (IsAttacking) return;
-
-
+	
 	RMAnim->playAttackMontage();
 	IsAttacking = true;
 }
