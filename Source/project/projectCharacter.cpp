@@ -50,7 +50,7 @@ AprojectCharacter::AprojectCharacter()
 	}
 
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	static ConstructorHelpers::FClassFinder<UAnimInstance> REMY_ANIM(TEXT("/Game/mixamo/Remy/animation/RemyAnimBlueprint.RemyAnimBlueprint_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> REMY_ANIM(TEXT("/Game/mixamo/Remy/animation/RemyAnim.RemyAnim_C"));
 	if (REMY_ANIM.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(REMY_ANIM.Class);
@@ -112,14 +112,15 @@ AprojectCharacter::AprojectCharacter()
 		WeaponChangeDownAction = IA_ChangeWeaponDown.Object;
 	}
 
-	FName WeaponSocket(TEXT("weapon"));
+	FName WeaponSocket(TEXT("pistol"));
 	if (GetMesh()->DoesSocketExist(WeaponSocket))
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("weapon!"));
 		Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WEAPON"));
-		static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_WEAPON(TEXT("/Game/Weapon/Gun/gun/g18"));
+		static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_WEAPON(TEXT("/Game/Weapon/Gun/gun/SMg18"));
 		if (SM_WEAPON.Succeeded())
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("weapon!"));
+			UE_LOG(LogTemp, Warning, TEXT("weapon!"));
 			Weapon->SetStaticMesh(SM_WEAPON.Object);
 		}
 		Weapon->SetupAttachment(GetMesh(), WeaponSocket);
@@ -277,17 +278,34 @@ void AprojectCharacter::WeaponChange(int Num)
 	if (WeaponState == 0) WeaponState = 3;
 	else if (WeaponState == 4) WeaponState = 1;
 
+	RMAnim->setMoveType(WeaponState);
+
 	if (WeaponState == 1) {
-		UStaticMesh* SM_Gun = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Gun/gun/SMg18")));
-		Weapon->SetStaticMesh(SM_Gun);
+		FName WeaponSocket(TEXT("pistol"));
+		if (GetMesh()->DoesSocketExist(WeaponSocket))
+		{
+			UStaticMesh* SM_Gun = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Gun/gun/SMg18")));
+			Weapon->SetStaticMesh(SM_Gun);
+			Weapon->SetupAttachment(GetMesh(), WeaponSocket);
+		}
 	}
 	else if (WeaponState == 2) {
-		UStaticMesh* SM_Rifle = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Riple/scarL")));
-		Weapon->SetStaticMesh(SM_Rifle);
+		FName WeaponSocket(TEXT("rifle"));
+		if (GetMesh()->DoesSocketExist(WeaponSocket))
+		{
+			UStaticMesh* SM_Rifle = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Riple/scarL")));
+			Weapon->SetStaticMesh(SM_Rifle);
+			Weapon->SetupAttachment(GetMesh(), WeaponSocket);
+		}
 	}
 	else if (WeaponState == 3) {
-		UStaticMesh* SM_Sniper = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Sniper/meshes/Sniper")));
-		Weapon->SetStaticMesh(SM_Sniper);
+		FName WeaponSocket(TEXT("sniper"));
+		if (GetMesh()->DoesSocketExist(WeaponSocket))
+		{
+			UStaticMesh* SM_Sniper = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Sniper/meshes/Sniper")));
+			Weapon->SetStaticMesh(SM_Sniper);
+			Weapon->SetupAttachment(GetMesh(), WeaponSocket);
+		}
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("%d: Weapon Change ERROR!!!!!!!!!!!!"), WeaponState);

@@ -5,10 +5,19 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "RMAnimInstance.generated.h"
+//#include "enumMoveType.h"
 
 /**
  * 
  */
+
+UENUM(BlueprintType)
+enum class EMoveType : uint8
+{
+	Pistol UMETA(DisplayName = "Pistol"),
+	rifleSniper UMETA(DisplayName = "rifleSniper")
+};
+
 UCLASS()
 class PROJECT_API URMAnimInstance : public UAnimInstance
 {
@@ -20,6 +29,7 @@ public:
 
 	void playAttackMontage();
 
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	float currentPawnSpeed;
@@ -30,6 +40,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	float currentDirection;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	EMoveType myMoveType;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* attackMontage;
+
+public:
+	void setMoveType(int Num);
 };

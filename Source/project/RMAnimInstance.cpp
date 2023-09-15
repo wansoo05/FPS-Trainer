@@ -9,16 +9,17 @@ URMAnimInstance::URMAnimInstance()
 {
 	currentPawnSpeed = 0.0f;
 	isInAir = false;
+	myMoveType = EMoveType::Pistol;
 
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/mixamo/Remy/animation/Fire_Rifle_Hip_Montage.Fire_Rifle_Hip_Montage"));
 	if (ATTACK_MONTAGE.Succeeded())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Fire!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Fire!"));
 		attackMontage = ATTACK_MONTAGE.Object;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Fail!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Fail!"));
 	}
 }
 
@@ -42,4 +43,20 @@ void URMAnimInstance::NativeUpdateAnimation(float deltaSeconds)
 void URMAnimInstance::playAttackMontage()
 {
 	Montage_Play(attackMontage, 1.0f);
+}
+
+void URMAnimInstance::setMoveType(int Num)
+{
+	switch (Num)
+	{
+	case 1:
+		myMoveType = EMoveType::Pistol;
+		break;
+	case 2:
+		myMoveType = EMoveType::rifleSniper;
+		break;
+	case 3:
+		myMoveType = EMoveType::rifleSniper;
+		break;
+	}
 }
