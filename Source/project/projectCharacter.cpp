@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "projectCharacter.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -10,6 +11,11 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "RMAnimInstance.h"
+#include "Engine/World.h"
+#include "Components/SphereComponent.h"
+#include "Components/PrimitiveComponent.h"
+#include "DrawDebugHelpers.h"
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -149,6 +155,8 @@ void AprojectCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	Camera = this->FindComponentByClass<UCameraComponent>();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -171,6 +179,7 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 		//Firing
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AprojectCharacter::Fire);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AprojectCharacter::FireEnd);
 
 		//Zooming
 		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &AprojectCharacter::Zoom);
@@ -230,9 +239,35 @@ void AprojectCharacter::Look(const FInputActionValue& Value)
 void AprojectCharacter::Fire(const FInputActionValue& Value)
 {
 	if (IsAttacking) return;
-	
+
 	RMAnim->playAttackMontage();
 	IsAttacking = true;
+	
+	FHitResult OutHit;
+	FVector Start = Camera->GetComponentLocation();
+	FVector ForwardVector = Camera->GetForwardVector();
+	FVector End = ((ForwardVector * 5000.f) + Start);
+	FCollisionQueryParams CollisionParams;
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+	{
+		if (OutHit.bBlockingHit)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("OutHit: %s"), *(OutHit.GetActor()->GetName()));
+			if (OutHit.GetActor()->GetName() == "AI") {
+				AprojectCharacter* AI = Cast<AprojectCharacter>(OutHit.GetActor());
+				AI->CalculateHP(-10);
+				UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), AI->HP);
+			}
+		}
+	}
+}
+
+void AprojectCharacter::FireEnd(const FInputActionValue& Value)
+{
+	IsAttacking = false;
 }
 
 void AprojectCharacter::Zoom(const FInputActionValue& Value)

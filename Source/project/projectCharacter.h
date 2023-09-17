@@ -65,6 +65,7 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Fire(const FInputActionValue& Value);
+	void FireEnd(const FInputActionValue& Value);
 	void Zoom(const FInputActionValue& Value);
 
 	void RunStart(const FInputActionValue& Value);
@@ -113,5 +114,7 @@ private:
 	int HP = 100;
 
 	int WeaponState = 1;
+
+	class UCameraComponent* Camera;
 };
 
