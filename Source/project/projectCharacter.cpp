@@ -33,8 +33,10 @@ AprojectCharacter::AprojectCharacter()
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
@@ -43,8 +45,19 @@ AprojectCharacter::AprojectCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
+
+	// Create a camera boom (pulls in towards the player if there is a collision)
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
+	CameraBoom->TargetArmLength = 0.0f; // The camera follows at this distance behind the character	
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+
+	// Create a follow camera
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	//FollowCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -126,7 +139,6 @@ AprojectCharacter::AprojectCharacter()
 		static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_WEAPON(TEXT("/Game/Weapon/Gun/gun/SMg18"));
 		if (SM_WEAPON.Succeeded())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("weapon!"));
 			Weapon->SetStaticMesh(SM_WEAPON.Object);
 		}
 		Weapon->SetupAttachment(GetMesh(), WeaponSocket);
@@ -321,7 +333,7 @@ void AprojectCharacter::WeaponChange(int Num)
 		{
 			UStaticMesh* SM_Gun = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Gun/gun/SMg18")));
 			Weapon->SetStaticMesh(SM_Gun);
-			Weapon->SetupAttachment(GetMesh(), WeaponSocket);
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
 		}
 	}
 	else if (WeaponState == 2) {
@@ -330,7 +342,8 @@ void AprojectCharacter::WeaponChange(int Num)
 		{
 			UStaticMesh* SM_Rifle = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Riple/scarL")));
 			Weapon->SetStaticMesh(SM_Rifle);
-			Weapon->SetupAttachment(GetMesh(), WeaponSocket);
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
+			UE_LOG(LogTemp, Warning, TEXT("%s"), Weapon);
 		}
 	}
 	else if (WeaponState == 3) {
@@ -339,7 +352,7 @@ void AprojectCharacter::WeaponChange(int Num)
 		{
 			UStaticMesh* SM_Sniper = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Sniper/meshes/Sniper")));
 			Weapon->SetStaticMesh(SM_Sniper);
-			Weapon->SetupAttachment(GetMesh(), WeaponSocket);
+			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
 		}
 	}
 	else {
