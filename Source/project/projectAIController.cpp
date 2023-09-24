@@ -12,6 +12,7 @@
 
 const FName AprojectAIController::HomePosKey(TEXT("HomePos"));
 const FName AprojectAIController::PatrolPosKey(TEXT("PatrolPos"));
+const FName AprojectAIController::TargetKey(TEXT("Target"));
 //void AprojectAIController::BeginPlay()
 //{
 //	Super::BeginPlay();
