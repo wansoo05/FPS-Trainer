@@ -15,5 +15,19 @@ class PROJECT_API AprojectAIController : public AAIController
 	GENERATED_BODY()
 	
 protected: 
-	virtual void BeginPlay() override;
+	//virtual void BeginPlay() override;
+
+public:
+	AprojectAIController();
+	virtual void OnPossess(APawn* InPawn) override;
+
+	static const FName HomePosKey;
+	static const FName PatrolPosKey;
+
+private:
+	UPROPERTY()
+	class UBehaviorTree* BTAsset;
+
+	UPROPERTY()
+	class UBlackboardData* BBAsset;
 };
