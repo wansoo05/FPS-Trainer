@@ -11,7 +11,7 @@ URMAnimInstance::URMAnimInstance()
 	isInAir = false;
 	myMoveType = EMoveType::Pistol;
 
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/mixamo/Remy/animation/Fire_Rifle_Hip_Montage.Fire_Rifle_Hip_Montage"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ATTACK_MONTAGE(TEXT("/Game/mixamo/Remy/animation/Rifle/Fire_Rifle_Ironsights_Montage.Fire_Rifle_Ironsights_Montage"));
 	if (ATTACK_MONTAGE.Succeeded())
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Fire!"));

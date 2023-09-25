@@ -15,6 +15,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "DrawDebugHelpers.h"
+#include "projectAIController.h"
 
 
 
@@ -26,15 +27,15 @@ AprojectCharacter::AprojectCharacter()
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-
+		
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
 	// Configure character movement
-	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 
@@ -42,11 +43,10 @@ AprojectCharacter::AprojectCharacter()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->bOrientRotationToMovement = false;
+
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -132,6 +132,9 @@ AprojectCharacter::AprojectCharacter()
 		}
 		Weapon->SetupAttachment(GetMesh(), WeaponSocket);
 	}
+
+	AIControllerClass = AprojectAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AprojectCharacter::PostInitializeComponents()
@@ -167,7 +170,7 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-
+		
 		//Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -214,7 +217,7 @@ void AprojectCharacter::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
+	
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
@@ -243,7 +246,7 @@ void AprojectCharacter::Fire(const FInputActionValue& Value)
 
 	RMAnim->playAttackMontage();
 	IsAttacking = true;
-
+	
 	FHitResult OutHit;
 	FVector Start = Camera->GetComponentLocation();
 	FVector ForwardVector = Camera->GetForwardVector();
@@ -283,7 +286,7 @@ void AprojectCharacter::RunStart(const FInputActionValue& Value)
 
 void AprojectCharacter::RunStop(const FInputActionValue& Value)
 {
-	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
 }
 
 void AprojectCharacter::Load(const FInputActionValue& Value)
@@ -306,7 +309,7 @@ void AprojectCharacter::WeaponChangeDown(const FInputActionValue& Value)
 void AprojectCharacter::WeaponChange(int Num)
 {
 	/* Num = 1 : UP
-	   Num = -1 : Down
+	   Num = -1 : Down 
 	   WeaponState 1: Gun 2: Rifle 3: Sniper */
 
 	WeaponState += Num;
