@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 #include "projectCharacter.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
 UCLASS(config=Game)
 class AprojectCharacter : public ACharacter
@@ -59,6 +60,10 @@ public:
 	virtual void PostInitializeComponents() override;
 	UPROPERTY(VisibleAnyWhere, Category = Weapon)
 	UStaticMeshComponent* Weapon;
+	virtual void PossessedBy(AController* NewController) override;
+
+	void Attack();
+	FOnAttackEndDelegate OnAttackEnd;
 
 protected:
 
