@@ -146,6 +146,45 @@ void AprojectCharacter::PostInitializeComponents()
 	RMAnim->OnMontageEnded.AddDynamic(this, &AprojectCharacter::onAttackMontageEnded);
 }
 
+void AprojectCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (!IsPlayerControlled())
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	}
+}
+
+void AprojectCharacter::Attack()
+{
+	if (IsAttacking) return;
+
+	RMAnim->playAttackMontage();
+	IsAttacking = true;
+
+	FHitResult OutHit;
+	FVector Start = Camera->GetComponentLocation();
+	FVector ForwardVector = Camera->GetForwardVector();
+	FVector End = ((ForwardVector * 5000.f) + Start);
+	FCollisionQueryParams CollisionParams;
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+	{
+		if (OutHit.bBlockingHit)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("OutHit: %s"), *(OutHit.GetActor()->GetName()));
+			if (OutHit.GetActor()->GetName() == "AI") {
+				AprojectCharacter* AI = Cast<AprojectCharacter>(OutHit.GetActor());
+				AI->CalculateHP(-10);
+				UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), AI->HP);
+			}
+		}
+	}
+}
+
 void AprojectCharacter::BeginPlay()
 {
 	// Call the base class  
@@ -242,31 +281,7 @@ void AprojectCharacter::Look(const FInputActionValue& Value)
 
 void AprojectCharacter::Fire(const FInputActionValue& Value)
 {
-	if (IsAttacking) return;
-
-	RMAnim->playAttackMontage();
-	IsAttacking = true;
-	
-	FHitResult OutHit;
-	FVector Start = Camera->GetComponentLocation();
-	FVector ForwardVector = Camera->GetForwardVector();
-	FVector End = ((ForwardVector * 5000.f) + Start);
-	FCollisionQueryParams CollisionParams;
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
-
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
-	{
-		if (OutHit.bBlockingHit)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("OutHit: %s"), *(OutHit.GetActor()->GetName()));
-			if (OutHit.GetActor()->GetName() == "AI") {
-				AprojectCharacter* AI = Cast<AprojectCharacter>(OutHit.GetActor());
-				AI->CalculateHP(-10);
-				UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), AI->HP);
-			}
-		}
-	}
+	Attack();
 }
 
 void AprojectCharacter::FireEnd(const FInputActionValue& Value)
@@ -356,6 +371,7 @@ void AprojectCharacter::onAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 {
 	if (!IsAttacking) return;
 	IsAttacking = false;
+	OnAttackEnd.Broadcast();
 }
 
 void AprojectCharacter::Die()
