@@ -120,6 +120,18 @@ private:
 
 	int WeaponState = 1;
 
+	float ShootRate = 0.f;
+	int ShootCount = 0;
+	int HitCount = 0;
+
+	int PistolBullet = 10;
+	int RifleBullet = 30;
+	int SniperBullet = 2;
+
+	int MaxPistolBullet = 10;
+	int MaxRifleBullet = 30;
+	int MaxSniperBullet = 2;
+
 	class UCameraComponent* Camera;
 };
 

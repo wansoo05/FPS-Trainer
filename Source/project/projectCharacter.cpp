@@ -171,15 +171,27 @@ void AprojectCharacter::Attack()
 
 	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
+	this->ShootCount += 1;
+
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 	{
 		if (OutHit.bBlockingHit)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("OutHit: %s"), *(OutHit.GetActor()->GetName()));
-			if (OutHit.GetActor()->GetName() == "AI") {
-				AprojectCharacter* AI = Cast<AprojectCharacter>(OutHit.GetActor());
-				AI->CalculateHP(-10);
-				UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), AI->HP);
+			// 
+			if (this->IsPlayerControlled()) {
+				if (OutHit.GetActor()->GetClass() == this->GetClass()) {
+					AprojectCharacter* AI = Cast<AprojectCharacter>(OutHit.GetActor());
+					AI->CalculateHP(-1);
+					this->HitCount += 1;
+					UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), AI->HP);
+				}
+			}
+			else {
+				if (OutHit.GetActor()->GetClass() == this->GetClass()) {
+					AprojectCharacter* ControlledPawn = Cast<AprojectCharacter>(OutHit.GetActor());
+					ControlledPawn->CalculateHP(-1);
+					UE_LOG(LogTemp, Warning, TEXT("My HP: %d"), ControlledPawn->HP);
+				}
 			}
 		}
 	}
@@ -291,7 +303,6 @@ void AprojectCharacter::FireEnd(const FInputActionValue& Value)
 
 void AprojectCharacter::Zoom(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Zoom!"));
 }
 
 void AprojectCharacter::RunStart(const FInputActionValue& Value)
@@ -306,6 +317,16 @@ void AprojectCharacter::RunStop(const FInputActionValue& Value)
 
 void AprojectCharacter::Load(const FInputActionValue& Value)
 {
+	if (WeaponState == 1) {
+		PistolBullet = MaxPistolBullet;
+	}
+	else if (WeaponState == 2) {
+		RifleBullet = MaxRifleBullet;
+	}
+	else if (WeaponState == 3) {
+		SniperBullet = MaxSniperBullet;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Load!"));
 }
 
