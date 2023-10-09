@@ -6,8 +6,25 @@
 
 void UGameScore::NativeConstruct()
 {
-	FString DefualtScore = FString::Printf(TEXT("0"));
-
-	MyScore->SetText(FText::FromString(DefualtScore));
-	AIScore->SetText(FText::FromString(DefualtScore));
 }
+
+void UGameScore::Construct()
+{
+
+}
+
+void UGameScore::ScoreUP(int Who)
+{
+	FText TestText = FText::FromString("TestString");
+
+	if (Who == 0) {
+		MyScore += 1;
+		MyScoreText->SetText(FText::AsNumber(MyScore));
+	}
+	else if (Who == 1) {
+		AIScore += 1;
+		AIScoreText->SetText(FText::AsNumber(AIScore));
+	}
+}
+
+

@@ -9,61 +9,68 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
-UCLASS(config=Game)
+UCLASS(config = Game)
 class AprojectCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+		/** Camera boom positioning the camera behind the character */
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+		class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* FollowCamera;
-	
+		class UCameraComponent* FollowCamera;
+
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
+		class UInputMappingContext* DefaultMappingContext;
 
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* JumpAction;
+		class UInputAction* JumpAction;
 
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
+		class UInputAction* MoveAction;
 
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
+		class UInputAction* LookAction;
 
 	/** Fire Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* FireAction;
+		class UInputAction* FireAction;
 
 	/** Zoom Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* ZoomAction;
+		class UInputAction* ZoomAction;
 
 	/** Run Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* RunAction;
+		class UInputAction* RunAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* RifleAction;
+		class UInputAction* RifleAction;
 
 public:
 	AprojectCharacter();
-	
+
 public:
 	virtual void PostInitializeComponents() override;
 	UPROPERTY(VisibleAnyWhere, Category = Weapon)
-	UStaticMeshComponent* Weapon;
+		UStaticMeshComponent* Weapon;
 	virtual void PossessedBy(AController* NewController) override;
 
 	void Attack();
+
+	class AnalysisSystem* GetAnalysisSystem();
+
+
 	FOnAttackEndDelegate OnAttackEnd;
+	//class AnalysisSystem* AnSys = new AnalysisSystem();
+	//class AnalysisSystem* AnSys;
+	//TUniquePtr<AnalysisSystem> AnSys = TUniquePtr<AnalysisSystem>(new AnalysisSystem());
 
 protected:
 
@@ -84,6 +91,7 @@ protected:
 
 	void Die();
 
+
 	class UInputAction* WeaponChangeUPAction;
 	class UInputAction* WeaponChangeDownAction;
 	class UInputAction* LoadAction;
@@ -91,11 +99,12 @@ protected:
 
 	UFUNCTION()
 	void onAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-	
+
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	// To add mapping context
 	virtual void BeginPlay();
 
@@ -104,19 +113,19 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = Input)
-	class UInputMappingContext* DefaultContext;
+		class UInputMappingContext* DefaultContext;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-	bool IsAttacking = false;
+		bool IsAttacking = false;
 
 	UPROPERTY()
-	class URMAnimInstance* RMAnim;
+		class URMAnimInstance* RMAnim;
 
 	/* HP = HP + Value */
 	void CalculateHP(int Value);
 
 	UPROPERTY(VisibleAnywhere)
-	int HP = 100;
+		int HP = 100;
 
 	int WeaponState = 1;
 
@@ -133,5 +142,11 @@ private:
 	int MaxSniperBullet = 2;
 
 	class UCameraComponent* Camera;
+	AprojectCharacter* AI;
+
+	class UGameScore* GameScoreWidget;
+	class UAnalysisWidget* AnalysisReportWidget;
+
+	class AWidgetManager* WidgetManager;
 };
 
