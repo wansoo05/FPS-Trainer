@@ -39,4 +39,6 @@ public:
 	class UAnalysisWidget* AnalysisReportWidget;
 
 	class AprojectCharacter* PlayerCharacter;
+
+	class AnalysisSystem* AnalysisSystem;
 };

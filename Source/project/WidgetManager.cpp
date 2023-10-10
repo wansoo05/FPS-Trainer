@@ -31,7 +31,7 @@ void AWidgetManager::BeginPlay()
 	Super::BeginPlay();
 	
 	PlayerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	AnalysisSystem* AnSys = PlayerCharacter->GetAnalysisSystem();
+	AnalysisSystem = PlayerCharacter->GetAnalysisSystem();
 }
 
 // Called every frame
@@ -75,6 +75,12 @@ void AWidgetManager::AddtoViewAnalysisReport()
 {
 	if (IsValid(AnalysisReportWidget))
 	{
+		AnalysisSystem = PlayerCharacter->GetAnalysisSystem();
+		AnalysisSystem->An_CalculateData();
+
+		AnalysisReportWidget->SetReport(AnalysisSystem->PistolAccuracy, AnalysisSystem->RifleAccuracy, AnalysisSystem->SniperAccuracy,
+			AnalysisSystem->PistolAverageDistance, AnalysisSystem->RifleAverageDistance, AnalysisSystem->SniperAverageDistance, AnalysisSystem->HPCount);
+
 		AnalysisReportWidget->AddToViewport();
 	}
 }
