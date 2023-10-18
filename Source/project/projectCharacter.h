@@ -5,12 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "GenericTeamAgentInterface.h"
+#include "Bullet.h"
 #include "projectCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnAttackEndDelegate);
 
 UCLASS(config=Game)
-class AprojectCharacter : public ACharacter
+class AprojectCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -58,14 +60,33 @@ public:
 	
 public:
 	virtual void PostInitializeComponents() override;
+
 	UPROPERTY(VisibleAnyWhere, Category = Weapon)
 	UStaticMeshComponent* Weapon;
+
+
 	virtual void PossessedBy(AController* NewController) override;
 
 	void Attack();
 	FOnAttackEndDelegate OnAttackEnd;
 
+	UFUNCTION()
+	void WeaponChange(int Num);
+
+	UFUNCTION()
+	int GetWeaponState();
+
+	UFUNCTION()
+	void SetWeaponState(int Num);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Projectile)
+	TSubclassOf<class ABullet> ProjectileClass;
+
+	virtual FGenericTeamId GetGenericTeamId() const override {return TeamId;}
+
 protected:
+
+	FGenericTeamId TeamId;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -80,8 +101,8 @@ protected:
 
 	void WeaponChangeUP(const FInputActionValue& Value);
 	void WeaponChangeDown(const FInputActionValue& Value);
-	void WeaponChange(int Num);
 
+	UFUNCTION()
 	void Die();
 
 	class UInputAction* WeaponChangeUPAction;
@@ -107,7 +128,7 @@ private:
 	class UInputMappingContext* DefaultContext;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-	bool IsAttacking = false;
+	bool IsAttacking{};
 
 	UPROPERTY()
 	class URMAnimInstance* RMAnim;

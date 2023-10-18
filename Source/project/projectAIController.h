@@ -15,16 +15,42 @@ class PROJECT_API AprojectAIController : public AAIController
 	GENERATED_BODY()
 	
 protected: 
-	//virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
+
+	FGenericTeamId TeamId;
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 
 public:
 	AprojectAIController();
 	virtual void OnPossess(APawn* InPawn) override;
 
-	static const FName HomePosKey;
 	static const FName PatrolPosKey;
 	static const FName TargetKey;
 	static const FName IsAttackKey;
+	static const FName IsSeeKey;
+
+	UFUNCTION()
+	void OnPawnDetected(const TArray<AActor*>& DetectedPawns);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category=AI)
+	float AISightRadius = 3000.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	float AISightAge = 5.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	float AILoseSightRadius = AISightRadius + 50.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	float AIFieldOfView = 90.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	class UAIPerceptionComponent* AIPerComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	class UAISenseConfig_Sight* SightConfig;
+
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamId; }
 
 private:
 	UPROPERTY()

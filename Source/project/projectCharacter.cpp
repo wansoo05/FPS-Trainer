@@ -16,6 +16,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "DrawDebugHelpers.h"
 #include "projectAIController.h"
+#include "Bullet.h"
 
 
 
@@ -132,9 +133,13 @@ AprojectCharacter::AprojectCharacter()
 		}
 		Weapon->SetupAttachment(GetMesh(), WeaponSocket);
 	}
+	IsAttacking = false;
+
 
 	AIControllerClass = AprojectAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	TeamId = FGenericTeamId(0);
 }
 
 void AprojectCharacter::PostInitializeComponents()
@@ -162,27 +167,38 @@ void AprojectCharacter::Attack()
 
 	RMAnim->playAttackMontage();
 	IsAttacking = true;
-
-	FHitResult OutHit;
-	FVector Start = Camera->GetComponentLocation();
-	FVector ForwardVector = Camera->GetForwardVector();
-	FVector End = ((ForwardVector * 5000.f) + Start);
-	FCollisionQueryParams CollisionParams;
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
-
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+	if (ProjectileClass)
 	{
-		if (OutHit.bBlockingHit)
+		FRotator MuzzleRotation = Camera->GetComponentRotation();
+		FVector MuzzleLocation = Camera->GetComponentLocation();
+
+		UWorld* World = GetWorld();
+		if (World)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("OutHit: %s"), *(OutHit.GetActor()->GetName()));
-			if (OutHit.GetActor()->GetName() == "AI") {
-				AprojectCharacter* AI = Cast<AprojectCharacter>(OutHit.GetActor());
-				AI->CalculateHP(-10);
-				UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), AI->HP);
-			}
+			World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, MuzzleRotation);
 		}
 	}
+
+	//FHitResult OutHit;
+	//FVector Start = Camera->GetComponentLocation();
+	//FVector ForwardVector = Camera->GetForwardVector();
+	//FVector End = ((ForwardVector * 5000.f) + Start);
+	//FCollisionQueryParams CollisionParams;
+
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+	//if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+	//{
+	//	if (OutHit.bBlockingHit)
+	//	{
+	//		//UE_LOG(LogTemp, Warning, TEXT("OutHit: %s"), *(OutHit.GetActor()->GetName()));
+	//		if (OutHit.GetActor()->GetName() == "AI") {
+	//			AprojectCharacter* AI = Cast<AprojectCharacter>(OutHit.GetActor());
+	//			AI->CalculateHP(-10);
+	//			UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), AI->HP);
+	//		}
+	//	}
+	//}
 }
 
 void AprojectCharacter::BeginPlay()
@@ -222,7 +238,7 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 		//Firing
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AprojectCharacter::Fire);
-		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AprojectCharacter::FireEnd);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AprojectCharacter::FireEnd);
 
 		//Zooming
 		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &AprojectCharacter::Zoom);
@@ -286,7 +302,7 @@ void AprojectCharacter::Fire(const FInputActionValue& Value)
 
 void AprojectCharacter::FireEnd(const FInputActionValue& Value)
 {
-	IsAttacking = false;
+	//IsAttacking = false;
 }
 
 void AprojectCharacter::Zoom(const FInputActionValue& Value)
@@ -350,7 +366,7 @@ void AprojectCharacter::WeaponChange(int Num)
 			UStaticMesh* SM_Rifle = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Riple/scarL")));
 			Weapon->SetStaticMesh(SM_Rifle);
 			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
-			UE_LOG(LogTemp, Warning, TEXT("%s"), Weapon);
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), Weapon);
 		}
 	}
 	else if (WeaponState == 3) {
@@ -365,6 +381,16 @@ void AprojectCharacter::WeaponChange(int Num)
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("%d: Weapon Change ERROR!!!!!!!!!!!!"), WeaponState);
 	}
+}
+
+int AprojectCharacter::GetWeaponState()
+{
+	return WeaponState;
+}
+
+void AprojectCharacter::SetWeaponState(int Num)
+{
+	WeaponState = Num;
 }
 
 void AprojectCharacter::onAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)

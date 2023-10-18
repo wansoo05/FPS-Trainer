@@ -44,7 +44,13 @@ private:
 	EMoveType myMoveType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-	UAnimMontage* attackMontage;
+	UAnimMontage* PistolAttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* RipleAttackMontage;
+
+	UFUNCTION()
+	void AnimNotify_AttackCheck();
 
 public:
 	void setMoveType(int Num);

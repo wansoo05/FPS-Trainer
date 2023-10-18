@@ -4,6 +4,7 @@
 #include "BTTask_Attack.h"
 #include "projectAIController.h"
 #include "projectCharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 UBTTask_Attack::UBTTask_Attack()
 {
@@ -18,6 +19,25 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	if (nullptr == projectCharacter)
 		return EBTNodeResult::Failed;
 
+	auto Target = Cast<AprojectCharacter>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AprojectAIController::TargetKey));
+	if (nullptr == Target)
+		return EBTNodeResult::Failed;
+
+	if (Target->GetDistanceTo(projectCharacter) <= 1000.0f)
+	{
+		projectCharacter->SetWeaponState(1);
+		projectCharacter->WeaponChange(0);
+	}
+	else if (Target->GetDistanceTo(projectCharacter) <= 3000.0f)
+	{
+		projectCharacter->SetWeaponState(2);
+		projectCharacter->WeaponChange(0);
+	}
+	else
+	{
+		projectCharacter->SetWeaponState(3);
+		projectCharacter->WeaponChange(0);
+	}
 	projectCharacter->Attack();
 	IsAttacking = true;
 	projectCharacter->OnAttackEnd.AddLambda([this]() -> void {IsAttacking = false; });
