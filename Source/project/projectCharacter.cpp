@@ -1,6 +1,14 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "projectCharacter.h"
+#include "ReadWriteJson.h"
+#include "GameScore.h"
+#include "projectAIController.h"
+#include "RMAnimInstance.h"
+#include "AnalysisManager.h"
+#include "AnalysisWidget.h"
+#include "WidgetManager.h"
+#include "SettingManager.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -10,7 +18,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "RMAnimInstance.h"
 #include "Engine/World.h"
 #include "Components/SphereComponent.h"
 #include "Components/PrimitiveComponent.h"
@@ -18,6 +25,11 @@
 #include "projectAIController.h"
 #include "Bullet.h"
 
+#include "Components/WidgetComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetTree.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -25,10 +37,8 @@
 
 AprojectCharacter::AprojectCharacter()
 {
-
-	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -121,6 +131,13 @@ AprojectCharacter::AprojectCharacter()
 		WeaponChangeDownAction = IA_ChangeWeaponDown.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_MouseSensitivity(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_MouseSensitivity.IA_MouseSensitivity"));
+	if (IA_MouseSensitivity.Succeeded())
+	{
+		MouseSensitivityAction = IA_MouseSensitivity.Object;
+	}
+
 	FName WeaponSocket(TEXT("pistol"));
 	if (GetMesh()->DoesSocketExist(WeaponSocket))
 	{
@@ -167,7 +184,21 @@ void AprojectCharacter::Attack()
 
 	RMAnim->playAttackMontage();
 	IsAttacking = true;
-	if (ProjectileClass)
+
+	FHitResult OutHit;
+	FVector Start = Camera->GetComponentLocation();
+	FVector ForwardVector = Camera->GetForwardVector();
+	FVector End = ((ForwardVector * 5000.f) + Start);
+	FCollisionQueryParams CollisionParams;
+
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+
+	this->ShootCount += 1;
+
+	FVector DistanceVector = this->GetActorLocation() - AI->GetActorLocation();
+	float Distance = DistanceVector.Size();
+
+	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 	{
 		FRotator MuzzleRotation = Camera->GetComponentRotation();
 		FVector MuzzleLocation = Camera->GetComponentLocation();
@@ -175,7 +206,29 @@ void AprojectCharacter::Attack()
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, MuzzleRotation);
+			// 
+			if (this->IsPlayerControlled()) {
+				if (OutHit.GetActor()->GetClass() == this->GetClass()) {
+					AI->CalculateHP(-1);
+					this->HitCount += 1;
+
+					AnalysisManager->An_AddData(WeaponState, true, Distance);
+						
+					//FJsonStruct JsonStruct = { 1, 1, 1, 1, 1 };
+					//UReadWriteJson::WriteStructFromJsonFile("/Analysis/Report.json", JsonStruct);
+				}
+
+				else {
+					AnalysisManager->An_AddData(WeaponState, false, Distance);
+				}
+			}
+
+			else {
+				if (OutHit.GetActor()->GetClass() == this->GetClass()) {
+					AprojectCharacter* ControlledPawn = Cast<AprojectCharacter>(OutHit.GetActor());
+					ControlledPawn->CalculateHP(-1);
+				}
+			}
 		}
 	}
 
@@ -206,6 +259,41 @@ void AprojectCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AprojectCharacter::StaticClass(), FoundActors);
+
+	if (FoundActors[0] == this) {
+		AI = Cast<AprojectCharacter>(FoundActors[1]);
+	}
+	else {
+		AI = Cast<AprojectCharacter>(FoundActors[0]);
+	}
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetManager::StaticClass(), FoundActors);
+
+	if(FoundActors.Num() > 0) 
+		WidgetManager = Cast<AWidgetManager>(FoundActors[0]);
+	
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAnalysisManager::StaticClass(), FoundActors);
+
+	if (FoundActors.Num() > 0)
+		AnalysisManager = Cast<AAnalysisManager>(FoundActors[0]);
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettingManager::StaticClass(), FoundActors);
+
+	if (FoundActors.Num() > 0)
+		SettingManager = Cast<ASettingManager>(FoundActors[0]);
+
+	if (Cast<ACharacter>(this) == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) {
+		WidgetManager->CreateGameScore();
+		WidgetManager->CreateAnalysisReport();
+		WidgetManager->AddtoViewGameScore();
+		UE_LOG(LogTemp, Warning, TEXT("Create Success"));
+	}
+
+	GameScoreWidget = WidgetManager->GetGameScoreWidget();
+	AnalysisReportWidget = WidgetManager->GetAnalysisReportWidget();
+
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -218,6 +306,15 @@ void AprojectCharacter::BeginPlay()
 	Camera = this->FindComponentByClass<UCameraComponent>();
 }
 
+void AprojectCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	UE_LOG(LogTemp, Warning, TEXT("EndPlay!"));
+
+	
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -225,7 +322,7 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
 		//Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -250,6 +347,9 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		//Changing
 		EnhancedInputComponent->BindAction(WeaponChangeUPAction, ETriggerEvent::Triggered, this, &AprojectCharacter::WeaponChangeUP);
 		EnhancedInputComponent->BindAction(WeaponChangeDownAction, ETriggerEvent::Triggered, this, &AprojectCharacter::WeaponChangeDown);
+
+		EnhancedInputComponent->BindAction(MouseSensitivityAction, ETriggerEvent::Triggered, this, &AprojectCharacter::ControlMouseSensitivity);
+		
 	}
 }
 
@@ -272,7 +372,7 @@ void AprojectCharacter::Move(const FInputActionValue& Value)
 
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	
+
 		// get right vector 
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
@@ -307,7 +407,6 @@ void AprojectCharacter::FireEnd(const FInputActionValue& Value)
 
 void AprojectCharacter::Zoom(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Zoom!"));
 }
 
 void AprojectCharacter::RunStart(const FInputActionValue& Value)
@@ -322,6 +421,16 @@ void AprojectCharacter::RunStop(const FInputActionValue& Value)
 
 void AprojectCharacter::Load(const FInputActionValue& Value)
 {
+	if (WeaponState == 1) {
+		PistolBullet = MaxPistolBullet;
+	}
+	else if (WeaponState == 2) {
+		RifleBullet = MaxRifleBullet;
+	}
+	else if (WeaponState == 3) {
+		SniperBullet = MaxSniperBullet;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Load!"));
 }
 
@@ -340,7 +449,7 @@ void AprojectCharacter::WeaponChangeDown(const FInputActionValue& Value)
 void AprojectCharacter::WeaponChange(int Num)
 {
 	/* Num = 1 : UP
-	   Num = -1 : Down 
+	   Num = -1 : Down
 	   WeaponState 1: Gun 2: Rifle 3: Sniper */
 
 	WeaponState += Num;
@@ -400,10 +509,36 @@ void AprojectCharacter::onAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 	OnAttackEnd.Broadcast();
 }
 
+void AprojectCharacter::ControlMouseSensitivity(const FInputActionValue& Value)
+{
+	FVector2D ControlVector = Value.Get<FVector2D>();
+	
+	if (ControlVector.X == 1.f) {
+		UE_LOG(LogTemp, Warning, TEXT("Reduce Sensitivity"));
+		SettingManager->ControlMouseSensitivity(-1);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Increase Sensitivity"));
+		SettingManager->ControlMouseSensitivity(1);
+	}
+}
+
 void AprojectCharacter::Die()
 {
 	/* Add isGround Check */
 	GetMesh()->PlayAnimation(DieAnim, false);
+
+	if (this->IsPlayerControlled()) {
+		WidgetManager->GameScoreWidget->ScoreUP(1);
+	}
+	else {
+		WidgetManager->GameScoreWidget->ScoreUP(0);
+	}
+}
+
+AAnalysisManager* AprojectCharacter::GetAnalysisManager()
+{
+	return AnalysisManager;
 }
 
 

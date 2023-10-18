@@ -8,6 +8,26 @@ public class project : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "NavigationSystem", "AIModule", "GameplayTasks" });
+		PublicDependencyModuleNames.AddRange
+			(
+				new string[] 
+				{ 
+				"Core", 
+				"CoreUObject", 
+				"Engine", 
+				"InputCore", 
+				"HeadMountedDisplay", 
+				"EnhancedInput", 
+
+				// AI Modules
+				"NavigationSystem", 
+				"AIModule", 
+				"GameplayTasks",
+
+				// Json Modules
+				"Json",
+				"JsonUtilities",
+				}
+			);
 	}
 }

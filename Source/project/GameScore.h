@@ -7,19 +7,29 @@
 #include "GameScore.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class PROJECT_API UGameScore : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	void NativeConstruct();
+	void Construct();
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* MyScore;
+		class UTextBlock* MyScoreText;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* AIScore;
+		class UTextBlock* AIScoreText;
+
+	float MyScore = 0;
+	float AIScore = 0;
+
+	class AWidgetManager* WidgetManager;
+
+	// Who = 0 : MyScore += 1
+	// Who = 1 : AIScore
+	void ScoreUP(int Who);
 };
