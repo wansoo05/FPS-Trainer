@@ -19,4 +19,8 @@ void UAnalysisWidget::SetReport(float PistolAccuracy, float RifleAccuracy, float
 	PistolAccuracyTextBlock->SetText(FText::AsNumber(PistolAccuracy));
 	RifleAccuracyTextBlock->SetText(FText::AsNumber(RifleAccuracy));
 	SniperAccuracyTextBlock->SetText(FText::AsNumber(SniperAccuracy));
+	PistolDistanceTextBlock->SetText(FText::AsNumber(PistolAverageDistance));
+	RifleDistanceTextBlock->SetText(FText::AsNumber(RifleAverageDistance));
+	SniperDistanceTextBlock->SetText(FText::AsNumber(SniperAverageDistance));
+	HPCountTextBlock->SetText(FText::AsNumber(HPCount));
 }

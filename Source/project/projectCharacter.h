@@ -14,8 +14,8 @@ class AprojectCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-		/** Camera boom positioning the camera behind the character */
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
@@ -63,8 +63,8 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	void Attack();
-
-	class AnalysisSystem* GetAnalysisSystem();
+	 
+	class AAnalysisManager* GetAnalysisManager();
 
 
 	FOnAttackEndDelegate OnAttackEnd;
@@ -89,11 +89,13 @@ protected:
 	void WeaponChangeDown(const FInputActionValue& Value);
 	void WeaponChange(int Num);
 
+	void ControlMouseSensitivity(const FInputActionValue& Value);
 	void Die();
 
 
 	class UInputAction* WeaponChangeUPAction;
 	class UInputAction* WeaponChangeDownAction;
+	class UInputAction* MouseSensitivityAction;
 	class UInputAction* LoadAction;
 	class UAnimSequence* DieAnim;
 
@@ -107,6 +109,8 @@ protected:
 
 	// To add mapping context
 	virtual void BeginPlay();
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -146,7 +150,8 @@ private:
 
 	class UGameScore* GameScoreWidget;
 	class UAnalysisWidget* AnalysisReportWidget;
-
+	class AAnalysisManager* AnalysisManager;
+	class ASettingManager* SettingManager;
 	class AWidgetManager* WidgetManager;
 };
 

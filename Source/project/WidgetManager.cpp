@@ -4,7 +4,7 @@
 #include "WidgetManager.h"
 #include "GameScore.h"
 #include "AnalysisWidget.h"
-#include "AnalysisSystem.h"	
+#include "AnalysisManager.h"	
 #include "projectCharacter.h"
 
 #include "GameFramework/Pawn.h"
@@ -29,9 +29,9 @@ AWidgetManager::AWidgetManager()
 void AWidgetManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	PlayerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	AnalysisSystem = PlayerCharacter->GetAnalysisSystem();
+	AnalysisManager = PlayerCharacter->GetAnalysisManager();
 }
 
 // Called every frame
@@ -75,11 +75,12 @@ void AWidgetManager::AddtoViewAnalysisReport()
 {
 	if (IsValid(AnalysisReportWidget))
 	{
-		AnalysisSystem = PlayerCharacter->GetAnalysisSystem();
-		AnalysisSystem->An_CalculateData();
+		AnalysisManager = PlayerCharacter->GetAnalysisManager();
+		AnalysisManager->An_CalculateData();
 
-		AnalysisReportWidget->SetReport(AnalysisSystem->PistolAccuracy, AnalysisSystem->RifleAccuracy, AnalysisSystem->SniperAccuracy,
-			AnalysisSystem->PistolAverageDistance, AnalysisSystem->RifleAverageDistance, AnalysisSystem->SniperAverageDistance, AnalysisSystem->HPCount);
+		AnalysisReportWidget->SetReport(AnalysisManager->PistolAccuracy, AnalysisManager->RifleAccuracy, AnalysisManager->SniperAccuracy,
+			AnalysisManager->PistolAverageDistance, AnalysisManager->RifleAverageDistance, 
+			AnalysisManager->SniperAverageDistance, AnalysisManager->HPCount);
 
 		AnalysisReportWidget->AddToViewport();
 	}

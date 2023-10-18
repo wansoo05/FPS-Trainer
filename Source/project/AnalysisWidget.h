@@ -25,6 +25,18 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* SniperAccuracyTextBlock;
 
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* PistolDistanceTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* RifleDistanceTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* SniperDistanceTextBlock;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* HPCountTextBlock;
+
 	void SetReport(float PistolAccuracy, float RifleAccuracy, float SniperAccuracy,
 				float PistolAverageDistance, float RifleAverageDistance, float SniperAverageDistance,
 				int HPCount);

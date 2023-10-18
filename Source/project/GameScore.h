@@ -27,6 +27,8 @@ public:
 	float MyScore = 0;
 	float AIScore = 0;
 
+	class AWidgetManager* WidgetManager;
+
 	// Who = 0 : MyScore += 1
 	// Who = 1 : AIScore
 	void ScoreUP(int Who);

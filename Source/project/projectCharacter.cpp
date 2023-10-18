@@ -5,9 +5,10 @@
 #include "GameScore.h"
 #include "projectAIController.h"
 #include "RMAnimInstance.h"
-#include "AnalysisSystem.h"
+#include "AnalysisManager.h"
 #include "AnalysisWidget.h"
 #include "WidgetManager.h"
+#include "SettingManager.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -30,8 +31,6 @@
 
 //////////////////////////////////////////////////////////////////////////
 // AprojectCharacter
-
-class AnalysisSystem* AnSys = new AnalysisSystem();
 
 AprojectCharacter::AprojectCharacter()
 {
@@ -129,6 +128,13 @@ AprojectCharacter::AprojectCharacter()
 		WeaponChangeDownAction = IA_ChangeWeaponDown.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>IA_MouseSensitivity(
+		TEXT("/Game/ThirdPerson/Input/Actions/IA_MouseSensitivity.IA_MouseSensitivity"));
+	if (IA_MouseSensitivity.Succeeded())
+	{
+		MouseSensitivityAction = IA_MouseSensitivity.Object;
+	}
+
 	FName WeaponSocket(TEXT("pistol"));
 	if (GetMesh()->DoesSocketExist(WeaponSocket))
 	{
@@ -195,14 +201,14 @@ void AprojectCharacter::Attack()
 					AI->CalculateHP(-1);
 					this->HitCount += 1;
 
-					AnSys->An_AddData(WeaponState, true, Distance);
+					AnalysisManager->An_AddData(WeaponState, true, Distance);
 						
 					//FJsonStruct JsonStruct = { 1, 1, 1, 1, 1 };
 					//UReadWriteJson::WriteStructFromJsonFile("/Analysis/Report.json", JsonStruct);
 				}
 
 				else {
-					AnSys->An_AddData(WeaponState, false, Distance);
+					AnalysisManager->An_AddData(WeaponState, false, Distance);
 				}
 			}
 
@@ -232,8 +238,20 @@ void AprojectCharacter::BeginPlay()
 	}
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetManager::StaticClass(), FoundActors);
-	WidgetManager = Cast<AWidgetManager>(FoundActors[0]);
+
+	if(FoundActors.Num() > 0) 
+		WidgetManager = Cast<AWidgetManager>(FoundActors[0]);
 	
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAnalysisManager::StaticClass(), FoundActors);
+
+	if (FoundActors.Num() > 0)
+		AnalysisManager = Cast<AAnalysisManager>(FoundActors[0]);
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASettingManager::StaticClass(), FoundActors);
+
+	if (FoundActors.Num() > 0)
+		SettingManager = Cast<ASettingManager>(FoundActors[0]);
+
 	if (Cast<ACharacter>(this) == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) {
 		WidgetManager->CreateGameScore();
 		WidgetManager->CreateAnalysisReport();
@@ -254,6 +272,15 @@ void AprojectCharacter::BeginPlay()
 	}
 
 	Camera = this->FindComponentByClass<UCameraComponent>();
+}
+
+void AprojectCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	UE_LOG(LogTemp, Warning, TEXT("EndPlay!"));
+
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -288,6 +315,9 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 		//Changing
 		EnhancedInputComponent->BindAction(WeaponChangeUPAction, ETriggerEvent::Triggered, this, &AprojectCharacter::WeaponChangeUP);
 		EnhancedInputComponent->BindAction(WeaponChangeDownAction, ETriggerEvent::Triggered, this, &AprojectCharacter::WeaponChangeDown);
+
+		EnhancedInputComponent->BindAction(MouseSensitivityAction, ETriggerEvent::Triggered, this, &AprojectCharacter::ControlMouseSensitivity);
+		
 	}
 }
 
@@ -437,6 +467,20 @@ void AprojectCharacter::onAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 	OnAttackEnd.Broadcast();
 }
 
+void AprojectCharacter::ControlMouseSensitivity(const FInputActionValue& Value)
+{
+	FVector2D ControlVector = Value.Get<FVector2D>();
+	
+	if (ControlVector.X == 1.f) {
+		UE_LOG(LogTemp, Warning, TEXT("Reduce Sensitivity"));
+		SettingManager->ControlMouseSensitivity(-1);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Increase Sensitivity"));
+		SettingManager->ControlMouseSensitivity(1);
+	}
+}
+
 void AprojectCharacter::Die()
 {
 	/* Add isGround Check */
@@ -448,13 +492,11 @@ void AprojectCharacter::Die()
 	else {
 		WidgetManager->GameScoreWidget->ScoreUP(0);
 	}
-
-	WidgetManager->AddtoViewAnalysisReport();
 }
 
-AnalysisSystem* AprojectCharacter::GetAnalysisSystem()
+AAnalysisManager* AprojectCharacter::GetAnalysisManager()
 {
-	return AnSys;
+	return AnalysisManager;
 }
 
 

@@ -40,5 +40,5 @@ public:
 
 	class AprojectCharacter* PlayerCharacter;
 
-	class AnalysisSystem* AnalysisSystem;
+	class AAnalysisManager* AnalysisManager;
 };

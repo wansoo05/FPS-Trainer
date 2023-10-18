@@ -28,8 +28,6 @@ void AnalysisSystem::An_HPCount()
 
 void AnalysisSystem::An_AddData(int Weapon, bool Hit, float Distance)
 {
-	UE_LOG(LogTemp, Warning, TEXT("The Result: %d, %d, %f"), Weapon, Hit, Distance);
-
 	An_FireCount();
 	
 	switch (Weapon)
@@ -55,6 +53,8 @@ void AnalysisSystem::An_AddData(int Weapon, bool Hit, float Distance)
 			SniperHitCount += 1;
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Gun: %d, %d"), PistolFireCount, PistolHitCount);
 }
 
 void AnalysisSystem::An_CalculateData()
