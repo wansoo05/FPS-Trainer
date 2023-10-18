@@ -89,7 +89,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Projectile)
 	TSubclassOf<class ABullet> ProjectileClass;
 
-	virtual FGenericTeamId GetGenericTeamId() const override {return TeamId;}
+	//virtual FGenericTeamId GetGenericTeamId() const override {return TeamId;}
 
 protected:
 
