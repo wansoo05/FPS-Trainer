@@ -9,6 +9,8 @@
 #include "AnalysisWidget.h"
 #include "WidgetManager.h"
 #include "SettingManager.h"
+#include "projectAIController.h"
+#include "Bullet.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -22,14 +24,13 @@
 #include "Components/SphereComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "DrawDebugHelpers.h"
-#include "projectAIController.h"
-#include "Bullet.h"
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Components/WidgetComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Kismet/GameplayStatics.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -58,6 +59,8 @@ AprojectCharacter::AprojectCharacter()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
+	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	AudioComp->SetupAttachment(GetRootComponent());
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -398,6 +401,7 @@ void AprojectCharacter::Look(const FInputActionValue& Value)
 void AprojectCharacter::Fire(const FInputActionValue& Value)
 {
 	Attack();
+	AudioComp->Play(0.f);
 }
 
 void AprojectCharacter::FireEnd(const FInputActionValue& Value)
