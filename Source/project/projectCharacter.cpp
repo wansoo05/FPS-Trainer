@@ -188,53 +188,15 @@ void AprojectCharacter::Attack()
 	RMAnim->playAttackMontage();
 	IsAttacking = true;
 
-	FHitResult OutHit;
-	FVector Start = Camera->GetComponentLocation();
-	FVector ForwardVector = Camera->GetForwardVector();
-	FVector End = ((ForwardVector * 5000.f) + Start);
-	FCollisionQueryParams CollisionParams;
+	FRotator MuzzleRotation = Camera->GetComponentRotation();
+	FVector MuzzleLocation = Camera->GetComponentLocation();
 
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
+	UWorld* World = GetWorld();
 
-	this->ShootCount += 1;
-
-	FVector DistanceVector = this->GetActorLocation() - AI->GetActorLocation();
-	float Distance = DistanceVector.Size();
-
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
+	if (ProjectileClass)
 	{
-		FRotator MuzzleRotation = Camera->GetComponentRotation();
-		FVector MuzzleLocation = Camera->GetComponentLocation();
-
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			// 
-			if (this->IsPlayerControlled()) {
-				if (OutHit.GetActor()->GetClass() == this->GetClass()) {
-					AI->CalculateHP(-1);
-					this->HitCount += 1;
-
-					AnalysisManager->An_AddData(WeaponState, true, Distance);
-						
-					//FJsonStruct JsonStruct = { 1, 1, 1, 1, 1 };
-					//UReadWriteJson::WriteStructFromJsonFile("/Analysis/Report.json", JsonStruct);
-				}
-
-				else {
-					AnalysisManager->An_AddData(WeaponState, false, Distance);
-				}
-			}
-
-			else {
-				if (OutHit.GetActor()->GetClass() == this->GetClass()) {
-					AprojectCharacter* ControlledPawn = Cast<AprojectCharacter>(OutHit.GetActor());
-					ControlledPawn->CalculateHP(-1);
-				}
-			}
-		}
+		World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, MuzzleRotation);
 	}
-
 	//FHitResult OutHit;
 	//FVector Start = Camera->GetComponentLocation();
 	//FVector ForwardVector = Camera->GetForwardVector();
@@ -243,15 +205,37 @@ void AprojectCharacter::Attack()
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
+	//this->ShootCount += 1;
+
+	//FVector DistanceVector = this->GetActorLocation() - AI->GetActorLocation();
+	//float Distance = DistanceVector.Size();
+
 	//if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
 	//{
-	//	if (OutHit.bBlockingHit)
+	//	if (World)
 	//	{
-	//		//UE_LOG(LogTemp, Warning, TEXT("OutHit: %s"), *(OutHit.GetActor()->GetName()));
-	//		if (OutHit.GetActor()->GetName() == "AI") {
-	//			AprojectCharacter* AI = Cast<AprojectCharacter>(OutHit.GetActor());
-	//			AI->CalculateHP(-10);
-	//			UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), AI->HP);
+	//		// 
+	//		if (this->IsPlayerControlled()) {
+	//			if (OutHit.GetActor()->GetClass() == this->GetClass()) {
+	//				AI->CalculateHP(-1);
+	//				this->HitCount += 1;
+
+	//				AnalysisManager->An_AddData(WeaponState, true, Distance);
+	//					
+	//				//FJsonStruct JsonStruct = { 1, 1, 1, 1, 1 };
+	//				//UReadWriteJson::WriteStructFromJsonFile("/Analysis/Report.json", JsonStruct);
+	//			}
+
+	//			else {
+	//				AnalysisManager->An_AddData(WeaponState, false, Distance);
+	//			}
+	//		}
+
+	//		else {
+	//			if (OutHit.GetActor()->GetClass() == this->GetClass()) {
+	//				AprojectCharacter* ControlledPawn = Cast<AprojectCharacter>(OutHit.GetActor());
+	//				ControlledPawn->CalculateHP(-1);
+	//			}
 	//		}
 	//	}
 	//}
