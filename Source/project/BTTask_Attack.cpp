@@ -16,6 +16,10 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	auto projectCharacter = Cast<AprojectCharacter>(OwnerComp.GetAIOwner()->GetPawn());
+	bool isStop = projectCharacter->GetIsStop();
+
+	if (isStop) return EBTNodeResult::Failed;
+
 	if (nullptr == projectCharacter)
 		return EBTNodeResult::Failed;
 

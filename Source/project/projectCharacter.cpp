@@ -184,7 +184,7 @@ void AprojectCharacter::PossessedBy(AController* NewController)
 
 void AprojectCharacter::Attack()
 {
-	if (IsAttacking) return;
+	if (IsAttacking || isStop) return;
 
 	RMAnim->playAttackMontage();
 	IsAttacking = true;
@@ -255,11 +255,17 @@ void AprojectCharacter::BeginPlay()
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AprojectCharacter::StaticClass(), FoundActors);
 
-	if (FoundActors[0] == this) {
-		AI = Cast<AprojectCharacter>(FoundActors[1]);
+	if (this->IsPlayerControlled()) {
+		if (this == FoundActors[0])
+			AI = Cast<AprojectCharacter>(FoundActors[1]);
+		else
+			AI = Cast<AprojectCharacter>(FoundActors[0]);
 	}
 	else {
-		AI = Cast<AprojectCharacter>(FoundActors[0]);
+		if (this == FoundActors[0])
+			Player = Cast<AprojectCharacter>(FoundActors[1]);
+		else 
+			Player = Cast<AprojectCharacter>(FoundActors[0]);
 	}
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetManager::StaticClass(), FoundActors);
@@ -531,6 +537,11 @@ void AprojectCharacter::onAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 	OnAttackEnd.Broadcast();
 }
 
+bool AprojectCharacter::GetIsStop()
+{
+	return isStop;
+}
+
 void AprojectCharacter::ControlMouseSensitivity(const FInputActionValue& Value)
 {
 	FVector2D ControlVector = Value.Get<FVector2D>();
@@ -557,6 +568,11 @@ void AprojectCharacter::Die()
 		WidgetManager->GameScoreWidget->ScoreUP(0);
 	}
 
+	isStop = true;
+
+	if(this->IsPlayerControlled())
+		AI->isStop = true;
+
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AprojectCharacter::Respawn, 3, false);
 
@@ -572,6 +588,8 @@ void AprojectCharacter::Respawn()
 	else {
 		SetActorLocation(AITargetPoint->GetActorLocation());
 	}
+
+	isStop = false;
 }
 
 AAnalysisManager* AprojectCharacter::GetAnalysisManager()

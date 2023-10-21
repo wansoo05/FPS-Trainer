@@ -28,6 +28,7 @@ void UGameScore::ScoreUP(int Who)
 		MyScoreText->SetText(FText::AsNumber(MyScore));
 		if (MyScore == 10) {
 			WidgetManager->AddtoViewAnalysisReport();
+			UGameplayStatics::SetGamePaused(GetWorld(), true);
 		}
 	}
 	else if (Who == 1) {
@@ -35,6 +36,7 @@ void UGameScore::ScoreUP(int Who)
 		AIScoreText->SetText(FText::AsNumber(AIScore));
 		if (AIScore == 10) {
 			WidgetManager->AddtoViewAnalysisReport();
+			UGameplayStatics::SetGamePaused(GetWorld(), true);
 		}
 	}
 }

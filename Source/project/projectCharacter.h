@@ -70,6 +70,7 @@ public:
 	UPROPERTY(VisibleAnyWhere, Category = Weapon)
 	UStaticMeshComponent* Weapon;
 
+	bool GetIsStop();
 
 	virtual void PossessedBy(AController* NewController) override;
 
@@ -77,6 +78,7 @@ public:
 	 
 	class AAnalysisManager* GetAnalysisManager();
 
+	bool isStop = false;
 
 	FOnAttackEndDelegate OnAttackEnd;
 	//class AnalysisSystem* AnSys = new AnalysisSystem();
@@ -158,8 +160,8 @@ private:
 		class URMAnimInstance* RMAnim;
 
 	UPROPERTY(VisibleAnywhere)
-		int HP = 1;
-	int MaxHP = 1;
+		int HP = 10;
+	int MaxHP = 10;
 
 	int WeaponState = 1;
 
@@ -175,8 +177,10 @@ private:
 	int MaxRifleBullet = 30;
 	int MaxSniperBullet = 2;
 
+
 	class UCameraComponent* Camera;
 	AprojectCharacter* AI;
+	AprojectCharacter* Player;
 
 	class UGameScore* GameScoreWidget;
 	class UAnalysisWidget* AnalysisReportWidget;
