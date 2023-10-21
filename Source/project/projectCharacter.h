@@ -27,6 +27,9 @@ class AprojectCharacter : public ACharacter, public IGenericTeamAgentInterface
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Audio, meta = (AllowPrivateAccess = "true"))
 		class UAudioComponent* AudioComp;
 
+	class ATargetPoint* PlayerTargetPoint;
+	class ATargetPoint* AITargetPoint;
+
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputMappingContext* DefaultMappingContext;
@@ -115,6 +118,7 @@ protected:
 	void ControlMouseSensitivity(const FInputActionValue& Value);
 	void Die();
 
+	void Respawn();
 
 	class UInputAction* WeaponChangeUPAction;
 	class UInputAction* WeaponChangeDownAction;
@@ -152,7 +156,8 @@ private:
 	void CalculateHP(int Value);
 
 	UPROPERTY(VisibleAnywhere)
-		int HP = 100;
+		int HP = 1;
+	int MaxHP = 1;
 
 	int WeaponState = 1;
 

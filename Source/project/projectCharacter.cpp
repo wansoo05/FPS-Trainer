@@ -26,6 +26,7 @@
 #include "DrawDebugHelpers.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/TargetPoint.h"
 
 #include "Components/WidgetComponent.h"
 #include "Blueprint/UserWidget.h"
@@ -59,8 +60,6 @@ AprojectCharacter::AprojectCharacter()
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
-	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
-	AudioComp->SetupAttachment(GetRootComponent());
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -155,6 +154,8 @@ AprojectCharacter::AprojectCharacter()
 	}
 	IsAttacking = false;
 
+	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	AudioComp->SetupAttachment(Weapon);
 
 	AIControllerClass = AprojectAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -197,6 +198,9 @@ void AprojectCharacter::Attack()
 	{
 		World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, MuzzleRotation);
 	}
+
+	AudioComp->Play(0.f);
+
 	//FHitResult OutHit;
 	//FVector Start = Camera->GetComponentLocation();
 	//FVector ForwardVector = Camera->GetForwardVector();
@@ -205,7 +209,7 @@ void AprojectCharacter::Attack()
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
 
-	//this->ShootCount += 1;
+	//this->ShootCount += 1;	
 
 	//FVector DistanceVector = this->GetActorLocation() - AI->GetActorLocation();
 	//float Distance = DistanceVector.Size();
@@ -270,6 +274,14 @@ void AprojectCharacter::BeginPlay()
 
 	if (FoundActors.Num() > 0)
 		SettingManager = Cast<ASettingManager>(FoundActors[0]);
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), FoundActors);
+
+	if (FoundActors.Num() > 1) {
+		PlayerTargetPoint = Cast<ATargetPoint>(FoundActors[0]);
+		AITargetPoint = Cast<ATargetPoint>(FoundActors[1]);
+	}
+	
 
 	if (Cast<ACharacter>(this) == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) {
 		WidgetManager->CreateGameScore();
@@ -385,7 +397,6 @@ void AprojectCharacter::Look(const FInputActionValue& Value)
 void AprojectCharacter::Fire(const FInputActionValue& Value)
 {
 	Attack();
-	AudioComp->Play(0.f);
 }
 
 void AprojectCharacter::FireEnd(const FInputActionValue& Value)
@@ -521,6 +532,22 @@ void AprojectCharacter::Die()
 	}
 	else {
 		WidgetManager->GameScoreWidget->ScoreUP(0);
+	}
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AprojectCharacter::Respawn, 3, false);
+
+}
+
+void AprojectCharacter::Respawn()
+{
+	HP = MaxHP;
+
+	if (this->IsPlayerControlled()) {
+		SetActorLocation(PlayerTargetPoint->GetActorLocation());
+	}
+	else {
+		SetActorLocation(AITargetPoint->GetActorLocation());
 	}
 }
 
