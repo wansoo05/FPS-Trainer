@@ -193,6 +193,8 @@ void AprojectCharacter::Attack()
 
 	UWorld* World = GetWorld();
 
+	this->ShootCount += 1;
+
 	if (ProjectileClass)
 	{
 		World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, MuzzleRotation);
@@ -302,6 +304,7 @@ void AprojectCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	
 }
 
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -344,6 +347,26 @@ void AprojectCharacter::CalculateHP(int Value)
 {
 	HP = HP += Value;
 	if (HP < 1) Die();
+}
+
+void AprojectCharacter::HitActor(AActor* OtherActor)
+{
+	//AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
+	FVector DistanceVector = this->GetActorLocation() - OtherActor->GetActorLocation();
+	float Distance = DistanceVector.Size();
+
+	if (OtherActor->GetClass() == this->GetClass())
+	{
+		AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
+		HitCount += 1;
+		HitCharacter->CalculateHP(-1);
+		AnalysisManager->An_AddData(WeaponState, true, Distance);
+		UE_LOG(LogTemp, Warning, TEXT("%d"), HitCharacter->HP);
+	}
+	else
+	{
+		AnalysisManager->An_AddData(WeaponState, false, Distance);
+	}
 }
 
 void AprojectCharacter::Move(const FInputActionValue& Value)

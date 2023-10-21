@@ -94,6 +94,11 @@ public:
 
 	virtual FGenericTeamId GetGenericTeamId() const override {return TeamId;}
 
+	/* HP = HP + Value */
+	void CalculateHP(int Value);
+
+	void HitActor(AActor* OtherActor);
+
 protected:
 
 	FGenericTeamId TeamId;
@@ -148,9 +153,6 @@ private:
 	UPROPERTY()
 		class URMAnimInstance* RMAnim;
 
-	/* HP = HP + Value */
-	void CalculateHP(int Value);
-
 	UPROPERTY(VisibleAnywhere)
 		int HP = 100;
 
@@ -176,5 +178,6 @@ private:
 	class AAnalysisManager* AnalysisManager;
 	class ASettingManager* SettingManager;
 	class AWidgetManager* WidgetManager;
+
 };
 

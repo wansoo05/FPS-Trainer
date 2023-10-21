@@ -86,8 +86,8 @@ AprojectAIController::AprojectAIController()
 	SightConfig->SetMaxAge(AISightAge);
 
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
-	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = false;
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
 
 	AIPerComp->SetDominantSense(*SightConfig->GetSenseImplementation());
 	AIPerComp->OnPerceptionUpdated.AddDynamic(this, &AprojectAIController::OnPawnDetected);

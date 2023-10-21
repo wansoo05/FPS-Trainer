@@ -6,6 +6,8 @@
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
+#include "projectCharacter.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -54,9 +56,26 @@ void ABullet::BeginPlay()
 
 void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	AprojectCharacter* playerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
 	GameStatic->SpawnEmitterAtLocation(this, FireParticle, Hit.ImpactPoint);
+	playerCharacter->HitActor(OtherActor);
+	if (OtherActor == playerCharacter)
+	{
+		if (OtherActor->GetClass() == playerCharacter->GetClass())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "player");
+		}
+	}
+	else
+	{
+		if (OtherActor->GetClass() == playerCharacter->GetClass())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "other");
+		}
+	}
 	Destroy();
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Hit");
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Hit");
 }
 
 // Called every frame
