@@ -48,6 +48,8 @@ void AAnalysisManager::An_AddData(int Weapon, bool Hit, float Distance)
 {
 	An_FireCount();
 
+	UE_LOG(LogTemp, Warning, TEXT("Add Data! %d"), Distance);
+
 	switch (Weapon)
 	{
 	case 1:
@@ -86,8 +88,6 @@ void AAnalysisManager::An_CalculateData()
 	PistolAverageDistance = PistolDistance / PistolFireCount;
 	RifleAverageDistance = RifleDistance / RifleFireCount;
 	SniperAverageDistance = SniperDistance / SniperFireCount;
-
-	UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f, %f"), PistolAccuracy, RifleAccuracy, PistolAverageDistance, RifleAverageDistance);
 }
 
 void AAnalysisManager::An_PrintData()

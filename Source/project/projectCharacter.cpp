@@ -373,17 +373,18 @@ void AprojectCharacter::HitActor(AActor* OtherActor)
 	FVector DistanceVector = this->GetActorLocation() - OtherActor->GetActorLocation();
 	float Distance = DistanceVector.Size();
 
-	if (OtherActor->GetClass() == this->GetClass())
-	{
-		AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
-		HitCount += 1;
-		HitCharacter->CalculateHP(-1);
-		AnalysisManager->An_AddData(WeaponState, true, Distance);
-		UE_LOG(LogTemp, Warning, TEXT("%d"), HitCharacter->HP);
-	}
-	else
-	{
-		AnalysisManager->An_AddData(WeaponState, false, Distance);
+	if (this->IsPlayerControlled()) {
+		if (OtherActor->GetClass() == this->GetClass())
+		{
+			AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
+			HitCount += 1;
+			HitCharacter->CalculateHP(-1);
+			AnalysisManager->An_AddData(WeaponState, true, Distance);
+		}
+		else
+		{
+			AnalysisManager->An_AddData(WeaponState, false, Distance);
+		}
 	}
 }
 
@@ -425,6 +426,15 @@ void AprojectCharacter::Look(const FInputActionValue& Value)
 
 void AprojectCharacter::Fire(const FInputActionValue& Value)
 {
+	if (this->IsPlayerControlled()) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player HP: %d"), HP);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), HP);
+	}
+
 	Attack();
 }
 
@@ -590,6 +600,11 @@ void AprojectCharacter::Respawn()
 	}
 
 	isStop = false;
+
+	if (this->IsPlayerControlled())
+		AI->isStop = false;
+	else
+		Player->isStop = false;
 }
 
 AAnalysisManager* AprojectCharacter::GetAnalysisManager()
