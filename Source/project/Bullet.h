@@ -29,10 +29,10 @@ public:
 	class UStaticMeshComponent* StaticMeshComponent;
 
 	UPROPERTY()
-		class UGameplayStatics* GameStatic;
+	class UGameplayStatics* GameStatic;
 
-	UPROPERTY()
-		class UParticleSystem* FireParticle;
+	//UPROPERTY()
+	class UParticleSystem* FireParticle;
 
 protected:
 	// Called when the game starts or when spawned

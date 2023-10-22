@@ -5,6 +5,7 @@
 #include "Engine/Classes/Components/SphereComponent.h"
 #include "Engine/Classes/GameFramework/ProjectileMovementComponent.h"
 #include "Particles/ParticleSystem.h"
+#include "Engine/Classes/Particles/ParticleSystemComponent.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 #include "projectCharacter.h"
@@ -18,7 +19,7 @@ ABullet::ABullet()
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 
-	FireParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("FireParticle"));
+	FireParticle = CreateDefaultSubobject<UParticleSystem>(TEXT("FireParticleSystem"));
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> Fire(TEXT("/Game/StarterContent/Particles/P_Explosion"));
 	if (Fire.Succeeded())
 	{
@@ -42,9 +43,6 @@ ABullet::ABullet()
 
 	StaticMeshComponent->SetupAttachment(CollisionComponent);
 
-	CollisionComponent->OnComponentHit.AddDynamic(this, &ABullet::OnHit);
-
-
 
 }
 
@@ -52,13 +50,17 @@ ABullet::ABullet()
 void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CollisionComponent->OnComponentHit.AddDynamic(this, &ABullet::OnHit);
 }
 
 void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (FireParticle == nullptr)
+		UE_LOG(LogTemp, Warning, TEXT("doesn't exist"));
+	UGameplayStatics::SpawnEmitterAtLocation(this, FireParticle, Hit.ImpactPoint);
 	AprojectCharacter* playerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-	GameStatic->SpawnEmitterAtLocation(this, FireParticle, Hit.ImpactPoint);
 	playerCharacter->HitActor(OtherActor);
 	if (OtherActor == playerCharacter)
 	{
