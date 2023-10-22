@@ -25,6 +25,12 @@ URMAnimInstance::URMAnimInstance()
 		UE_LOG(LogTemp, Warning, TEXT("Fire!"));
 		RipleAttackMontage = RIPLE_ATTACK_MONTAGE.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DIE_MONTAGE(TEXT("/Game/mixamo/Remy/animation/Common/Death_1_Montage"));
+	if (DIE_MONTAGE.Succeeded())
+	{
+		DieMontage = DIE_MONTAGE.Object;
+	}
 }
 
 void URMAnimInstance::NativeUpdateAnimation(float deltaSeconds)
@@ -36,15 +42,16 @@ void URMAnimInstance::NativeUpdateAnimation(float deltaSeconds)
 	{
 		currentPawnSpeed = Pawn->GetVelocity().Size();
 		currentDirection = CalculateDirection(Pawn->GetVelocity(),Pawn->GetActorRotation());
-		auto character = Cast<ACharacter>(Pawn);
+		auto character = Cast<AprojectCharacter>(Pawn);
 		if (character)
 		{
 			isInAir = character->GetMovementComponent()->IsFalling();
+			isStop = character->GetIsStop();
 		}
 	}
 }
 
-void URMAnimInstance::playAttackMontage()
+void URMAnimInstance::PlayAttackMontage()
 {
 	int WeaponState{};
 	auto Pawn = TryGetPawnOwner();
@@ -72,6 +79,11 @@ void URMAnimInstance::playAttackMontage()
 			Montage_Play(RipleAttackMontage, 1.0f);
 		break;
 	}
+}
+
+void URMAnimInstance::PlayDieMontage()
+{
+	Montage_Play(DieMontage, 0.7f);
 }
 
 void URMAnimInstance::AnimNotify_AttackCheck()

@@ -27,7 +27,8 @@ public:
 	URMAnimInstance();
 	virtual void NativeUpdateAnimation(float deltaSeconds) override;
 
-	void playAttackMontage();
+	void PlayAttackMontage();
+	void PlayDieMontage();
 
 
 private:
@@ -41,6 +42,9 @@ private:
 	float currentDirection;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	bool isStop;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	EMoveType myMoveType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
@@ -48,6 +52,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 	UAnimMontage* RipleAttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Die, Meta = (AllowPrivateAccess = true))
+	UAnimMontage* DieMontage;
 
 	UFUNCTION()
 	void AnimNotify_AttackCheck();

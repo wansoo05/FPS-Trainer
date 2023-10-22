@@ -186,7 +186,7 @@ void AprojectCharacter::Attack()
 {
 	if (IsAttacking || isStop) return;
 
-	RMAnim->playAttackMontage();
+	RMAnim->PlayAttackMontage();
 	IsAttacking = true;
 
 	FRotator MuzzleRotation = Camera->GetComponentRotation();
@@ -370,6 +370,8 @@ void AprojectCharacter::CalculateHP(int Value)
 void AprojectCharacter::HitActor(AActor* OtherActor)
 {
 	//AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
+
+	if (isStop) return;
 	FVector DistanceVector = this->GetActorLocation() - OtherActor->GetActorLocation();
 	float Distance = DistanceVector.Size();
 
@@ -426,14 +428,14 @@ void AprojectCharacter::Look(const FInputActionValue& Value)
 
 void AprojectCharacter::Fire(const FInputActionValue& Value)
 {
-	if (this->IsPlayerControlled()) 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Player HP: %d"), HP);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), HP);
-	}
+	//if (this->IsPlayerControlled()) 
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Player HP: %d"), HP);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), HP);
+	//}
 
 	Attack();
 }
@@ -569,7 +571,12 @@ void AprojectCharacter::ControlMouseSensitivity(const FInputActionValue& Value)
 void AprojectCharacter::Die()
 {
 	/* Add isGround Check */
-	GetMesh()->PlayAnimation(DieAnim, false);
+
+	if (isStop) return;
+
+	isStop = true;
+
+	RMAnim->PlayDieMontage();
 
 	if (this->IsPlayerControlled()) {
 		WidgetManager->GameScoreWidget->ScoreUP(1);
@@ -577,11 +584,6 @@ void AprojectCharacter::Die()
 	else {
 		WidgetManager->GameScoreWidget->ScoreUP(0);
 	}
-
-	isStop = true;
-
-	if(this->IsPlayerControlled())
-		AI->isStop = true;
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AprojectCharacter::Respawn, 3, false);
@@ -601,10 +603,10 @@ void AprojectCharacter::Respawn()
 
 	isStop = false;
 
-	if (this->IsPlayerControlled())
-		AI->isStop = false;
-	else
-		Player->isStop = false;
+	//if (this->IsPlayerControlled())
+	//	AI->isStop = false;
+	//else
+	//	Player->isStop = false;
 }
 
 AAnalysisManager* AprojectCharacter::GetAnalysisManager()

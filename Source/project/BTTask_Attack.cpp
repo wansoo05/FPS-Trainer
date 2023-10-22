@@ -16,9 +16,9 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	auto projectCharacter = Cast<AprojectCharacter>(OwnerComp.GetAIOwner()->GetPawn());
-	bool isStop = projectCharacter->GetIsStop();
+	//bool isStop = projectCharacter->GetIsStop();
 
-	if (isStop) return EBTNodeResult::Failed;
+	//if (isStop) return EBTNodeResult::Failed;
 
 	if (nullptr == projectCharacter)
 		return EBTNodeResult::Failed;
@@ -27,6 +27,7 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	if (nullptr == Target)
 		return EBTNodeResult::Failed;
 
+	if (Target->GetIsStop()) return EBTNodeResult::Failed;
 	if (Target->GetDistanceTo(projectCharacter) <= 1000.0f)
 	{
 		projectCharacter->SetWeaponState(1);

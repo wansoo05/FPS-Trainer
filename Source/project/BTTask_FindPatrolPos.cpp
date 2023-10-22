@@ -4,6 +4,7 @@
 #include "BTTask_FindPatrolPos.h"
 #include "projectAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "projectCharacter.h"
 #include "NavigationSystem.h"
 
 UBTTask_FindPatrolPos::UBTTask_FindPatrolPos()
@@ -17,6 +18,10 @@ EBTNodeResult::Type UBTTask_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent& O
 	auto ControllingPawn = OwnerComp.GetAIOwner()->GetPawn();
 	if (nullptr == ControllingPawn)
 		return EBTNodeResult::Failed;
+
+	auto AIPlayer = Cast<AprojectCharacter>(ControllingPawn);
+
+	if (AIPlayer->GetIsStop()) return EBTNodeResult::Failed;
 
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(ControllingPawn->GetWorld());
 	if (nullptr == NavSystem)
