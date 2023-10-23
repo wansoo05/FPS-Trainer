@@ -16,6 +16,8 @@ class PROJECT_API UAnalysisWidget : public UUserWidget
 	
 public:
 
+	virtual void NativeConstruct();
+
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* PistolAccuracyTextBlock;
 

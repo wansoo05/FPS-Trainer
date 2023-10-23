@@ -48,8 +48,6 @@ void AAnalysisManager::An_AddData(int Weapon, bool Hit, float Distance)
 {
 	An_FireCount();
 
-	UE_LOG(LogTemp, Warning, TEXT("Add Data! %d"), Distance);
-
 	switch (Weapon)
 	{
 	case 1:

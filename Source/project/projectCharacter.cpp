@@ -291,7 +291,7 @@ void AprojectCharacter::BeginPlay()
 	}
 	
 
-	if (Cast<ACharacter>(this) == UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)) {
+	if (this->IsPlayerControlled()) {
 		WidgetManager->CreateGameScore();
 		WidgetManager->CreateAnalysisReport();
 		WidgetManager->AddtoViewGameScore();

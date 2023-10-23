@@ -56,7 +56,10 @@ void AWidgetManager::CreateAnalysisReport()
 {
 	if (IsValid(AnalysisReportClass))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Create AnalysisWidget 1"));
 		AnalysisReportWidget = Cast<UAnalysisWidget>(CreateWidget(GetWorld(), AnalysisReportClass));
+		AnalysisReportWidget->AddToViewport();
+		AnalysisReportWidget->RemoveFromParent();
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("The Widget Lost"));
@@ -73,7 +76,7 @@ void AWidgetManager::AddtoViewGameScore()
 
 void AWidgetManager::AddtoViewAnalysisReport()
 {
-	if (IsValid(AnalysisReportWidget))
+	if (AnalysisReportWidget)
 	{
 		AnalysisManager = PlayerCharacter->GetAnalysisManager();
 		AnalysisManager->An_CalculateData();

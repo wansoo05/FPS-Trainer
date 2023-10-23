@@ -160,8 +160,8 @@ private:
 		class URMAnimInstance* RMAnim;
 
 	UPROPERTY(VisibleAnywhere)
-		int HP = 10;
-	int MaxHP = 10;
+		int HP = 3;
+	int MaxHP = 3;
 
 	int WeaponState = 1;
 
