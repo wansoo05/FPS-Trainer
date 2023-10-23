@@ -27,7 +27,7 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	if (nullptr == Target)
 		return EBTNodeResult::Failed;
 
-	if (Target->GetIsStop()) return EBTNodeResult::Failed;
+	if (Target->GetIsStop() || projectCharacter->GetIsStop()) return EBTNodeResult::Failed;
 	if (Target->GetDistanceTo(projectCharacter) <= 1000.0f)
 	{
 		projectCharacter->SetWeaponState(1);
