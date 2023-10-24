@@ -160,8 +160,8 @@ private:
 		class URMAnimInstance* RMAnim;
 
 	UPROPERTY(VisibleAnywhere)
-		int HP = 3;
-	int MaxHP = 3;
+		int HP = 1;
+	int MaxHP = 1;
 
 	int WeaponState = 1;
 
@@ -177,6 +177,7 @@ private:
 	int MaxRifleBullet = 30;
 	int MaxSniperBullet = 2;
 
+	float Sensitivity = 1.0f;
 
 	class UCameraComponent* Camera;
 	AprojectCharacter* AI;

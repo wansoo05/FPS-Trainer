@@ -81,11 +81,11 @@ void AWidgetManager::AddtoViewAnalysisReport()
 		AnalysisManager = PlayerCharacter->GetAnalysisManager();
 		AnalysisManager->An_CalculateData();
 
-		AnalysisReportWidget->SetReport(AnalysisManager->PistolAccuracy, AnalysisManager->RifleAccuracy, AnalysisManager->SniperAccuracy,
-			AnalysisManager->PistolAverageDistance, AnalysisManager->RifleAverageDistance, 
-			AnalysisManager->SniperAverageDistance, AnalysisManager->HPCount);
-
 		AnalysisReportWidget->AddToViewport();
+
+		AnalysisReportWidget->SetReport(AnalysisManager->PistolAccuracy, AnalysisManager->RifleAccuracy, AnalysisManager->SniperAccuracy,
+			AnalysisManager->PistolAverageDistance, AnalysisManager->RifleAverageDistance,
+			AnalysisManager->SniperAverageDistance, AnalysisManager->HPCount);
 	}
 }
 

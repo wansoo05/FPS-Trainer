@@ -416,7 +416,9 @@ void AprojectCharacter::Move(const FInputActionValue& Value)
 void AprojectCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
+
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	LookAxisVector = LookAxisVector * Sensitivity;
 
 	if (Controller != nullptr)
 	{
@@ -559,13 +561,13 @@ void AprojectCharacter::ControlMouseSensitivity(const FInputActionValue& Value)
 	FVector2D ControlVector = Value.Get<FVector2D>();
 	
 	if (ControlVector.X == 1.f) {
-		UE_LOG(LogTemp, Warning, TEXT("Reduce Sensitivity"));
-		SettingManager->ControlMouseSensitivity(-1);
+		Sensitivity -= 0.1f;
 	}
 	else {
-		UE_LOG(LogTemp, Warning, TEXT("Increase Sensitivity"));
-		SettingManager->ControlMouseSensitivity(1);
+		Sensitivity += 0.1f;
 	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Current Sensitivity: %f"), Sensitivity);
 }
 
 void AprojectCharacter::Die()

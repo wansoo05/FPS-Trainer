@@ -18,11 +18,6 @@ void UAnalysisWidget::SetReport(float PistolAccuracy, float RifleAccuracy, float
 	int HPCount)
 {
 	if (this != nullptr) {
-		TArray<AActor*> FoundActors;
-
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetManager::StaticClass(), FoundActors);
-		WidgetManager = Cast<AWidgetManager>(FoundActors[0]);
-
 		PistolAccuracyTextBlock->SetText(FText::AsNumber(PistolAccuracy));
 		RifleAccuracyTextBlock->SetText(FText::AsNumber(RifleAccuracy));
 		SniperAccuracyTextBlock->SetText(FText::AsNumber(SniperAccuracy));
