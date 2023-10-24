@@ -191,7 +191,7 @@ void AprojectCharacter::Attack()
 	IsAttacking = true;
 
 	FRotator MuzzleRotation = Camera->GetComponentRotation();
-	FVector MuzzleLocation = Camera->GetComponentLocation();
+	FVector MuzzleLocation = Camera->GetComponentLocation() + MuzzleRotation.RotateVector(FVector(30.0f, 0.0f, 0.0f));
 
 	UWorld* World = GetWorld();
 
