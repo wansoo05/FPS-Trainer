@@ -10,6 +10,7 @@
 #include "WidgetManager.h"
 #include "SettingManager.h"
 #include "projectAIController.h"
+#include "NavigationSystem.h"
 #include "Bullet.h"
 
 #include "Camera/CameraComponent.h"
@@ -595,12 +596,19 @@ void AprojectCharacter::Die()
 void AprojectCharacter::Respawn()
 {
 	HP = MaxHP;
+	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	FVector OriginLocation{};
+	FNavLocation RandomSpwanLocation{};
 
+	OriginLocation = GetActorLocation();
+	NavSystem->GetRandomPoint(RandomSpwanLocation);
+	//NavSystem->GetRandomPointInNavigableRadius(OriginLocation, 3000.0f, RandomSpawnLocation);
 	if (this->IsPlayerControlled()) {
 		SetActorLocation(PlayerTargetPoint->GetActorLocation());
 	}
 	else {
-		SetActorLocation(AITargetPoint->GetActorLocation());
+		SetActorLocation(RandomSpwanLocation.Location);
+		//UE_LOG(LogTemp, Warning, TEXT("%f"), RandomSpwanLocation.Location);
 	}
 
 	isStop = false;
