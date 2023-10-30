@@ -27,6 +27,10 @@
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/TargetPoint.h"
+#include "Perception/AISense_Hearing.h"
+#include "Perception/AISense.h"
+#include "Perception/AIPerceptionComponent.h"
+#include "Components/PawnNoiseEmitterComponent.h"
 
 #include "Components/WidgetComponent.h"
 #include "Blueprint/UserWidget.h"
@@ -157,6 +161,14 @@ AprojectCharacter::AprojectCharacter()
 	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComp->SetupAttachment(Weapon);
 
+	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
+
+	EmitterComponent = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("PawnNoiseEmitterComponent"));
+
+	TSubclassOf<UAISense_Hearing> Hearing;
+	
+	AIPerceptionComponent->SetDominantSense(Hearing);
+
 	AIControllerClass = AprojectAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
@@ -170,6 +182,7 @@ void AprojectCharacter::PostInitializeComponents()
 	if (nullptr == RMAnim) return;
 
 	RMAnim->OnMontageEnded.AddDynamic(this, &AprojectCharacter::onAttackMontageEnded);
+	AIPerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AprojectCharacter::onPerceptionUpdated);
 }
 
 void AprojectCharacter::PossessedBy(AController* NewController)
@@ -202,49 +215,12 @@ void AprojectCharacter::Attack()
 	}
 
 	AudioComp->Play(0.f);
+	MakeNoise(1.0f);
+	EmitterComponent->MakeNoise(this, 1.0f, GetActorForwardVector());
 
-	//FHitResult OutHit;
-	//FVector Start = Camera->GetComponentLocation();
-	//FVector ForwardVector = Camera->GetForwardVector();
-	//FVector End = ((ForwardVector * 5000.f) + Start);
-	//FCollisionQueryParams CollisionParams;
-
-	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 1);
-
-	//this->ShootCount += 1;	
-
-	//FVector DistanceVector = this->GetActorLocation() - AI->GetActorLocation();
-	//float Distance = DistanceVector.Size();
-
-	//if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_Visibility, CollisionParams))
-	//{
-	//	if (World)
-	//	{
-	//		// 
-	//		if (this->IsPlayerControlled()) {
-	//			if (OutHit.GetActor()->GetClass() == this->GetClass()) {
-	//				AI->CalculateHP(-1);
-	//				this->HitCount += 1;
-
-	//				AnalysisManager->An_AddData(WeaponState, true, Distance);
-	//					
-	//				//FJsonStruct JsonStruct = { 1, 1, 1, 1, 1 };
-	//				//UReadWriteJson::WriteStructFromJsonFile("/Analysis/Report.json", JsonStruct);
-	//			}
-
-	//			else {
-	//				AnalysisManager->An_AddData(WeaponState, false, Distance);
-	//			}
-	//		}
-
-	//		else {
-	//			if (OutHit.GetActor()->GetClass() == this->GetClass()) {
-	//				AprojectCharacter* ControlledPawn = Cast<AprojectCharacter>(OutHit.GetActor());
-	//				ControlledPawn->CalculateHP(-1);
-	//			}
-	//		}
-	//	}
-	//}
+	if (!(this->IsPlayerControlled())) {
+		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, GetController(), 0.0f);
+	}
 }
 
 void AprojectCharacter::BeginPlay()
@@ -575,12 +551,13 @@ void AprojectCharacter::Die()
 	/* Add isGround Check */
 
 	if (isStop) return;
-
 	isStop = true;
 
 	RMAnim->PlayDieMontage();
 
 	if (this->IsPlayerControlled()) {
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		DisableInput(PlayerController);
 		WidgetManager->GameScoreWidget->ScoreUP(1);
 	}
 	else {
@@ -589,7 +566,6 @@ void AprojectCharacter::Die()
 
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AprojectCharacter::Respawn, 3, false);
-
 }
 
 void AprojectCharacter::Respawn()
@@ -597,6 +573,8 @@ void AprojectCharacter::Respawn()
 	HP = MaxHP;
 
 	if (this->IsPlayerControlled()) {
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		EnableInput(PlayerController);
 		SetActorLocation(PlayerTargetPoint->GetActorLocation());
 	}
 	else {
@@ -605,10 +583,30 @@ void AprojectCharacter::Respawn()
 
 	isStop = false;
 
+
 	//if (this->IsPlayerControlled())
 	//	AI->isStop = false;
 	//else
 	//	Player->isStop = false;
+}
+
+bool AprojectCharacter::isHitAim()
+{
+	FRotator MuzzleRotation = Camera->GetComponentRotation();
+	FVector MuzzleLocation = Camera->GetComponentLocation();
+
+	return false;
+}
+
+void AprojectCharacter::onPerceptionUpdated(const TArray<AActor*>& DetectedPawn)
+{
+	UE_LOG(LogTemp, Warning, TEXT("I Can Hear"));
+	UE_LOG(LogTemp, Warning, TEXT("I Can Hear"));
+}
+
+void AprojectCharacter::DetectSound()
+{
+	UE_LOG(LogTemp, Warning, TEXT("DetectSound"));
 }
 
 AAnalysisManager* AprojectCharacter::GetAnalysisManager()

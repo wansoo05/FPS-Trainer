@@ -29,6 +29,8 @@ class AprojectCharacter : public ACharacter, public IGenericTeamAgentInterface
 
 	class ATargetPoint* PlayerTargetPoint;
 	class ATargetPoint* AITargetPoint;
+	
+	class UAIPerceptionComponent* AIPerceptionComponent;
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -69,6 +71,8 @@ public:
 
 	UPROPERTY(VisibleAnyWhere, Category = Weapon)
 	UStaticMeshComponent* Weapon;
+
+	class UPawnNoiseEmitterComponent* EmitterComponent;
 
 	bool GetIsStop();
 
@@ -126,6 +130,14 @@ protected:
 	void Die();
 
 	void Respawn();
+
+	bool isHitAim();
+
+	UFUNCTION()
+	void onPerceptionUpdated(const TArray<AActor*>& DetectedPawn);
+
+	UFUNCTION(BlueprintCallable)
+	void DetectSound();
 
 	class UInputAction* WeaponChangeUPAction;
 	class UInputAction* WeaponChangeDownAction;
