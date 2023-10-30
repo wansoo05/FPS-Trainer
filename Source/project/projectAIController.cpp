@@ -15,8 +15,7 @@
 
 const FName AprojectAIController::PatrolPosKey(TEXT("PatrolPos"));
 const FName AprojectAIController::TargetKey(TEXT("Target"));
-const FName AprojectAIController::IsAttackKey(TEXT("IsAttack"));
-const FName AprojectAIController::IsSeeKey(TEXT("IsSee"));
+const FName AprojectAIController::IsStopKey(TEXT("IsStop"));
 
 void AprojectAIController::BeginPlay()
 {

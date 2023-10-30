@@ -26,8 +26,7 @@ public:
 
 	static const FName PatrolPosKey;
 	static const FName TargetKey;
-	static const FName IsAttackKey;
-	static const FName IsSeeKey;
+	static const FName IsStopKey;
 
 	UFUNCTION()
 	void OnPawnDetected(const TArray<AActor*>& DetectedPawns);
