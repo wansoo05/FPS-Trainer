@@ -219,9 +219,11 @@ void AprojectCharacter::Attack()
 	MakeNoise(1.0f);
 	EmitterComponent->MakeNoise(this, 1.0f, GetActorForwardVector());
 
-	if (!(this->IsPlayerControlled())) {
+	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, GetController(), 0.0f);
+
+	/*if (!(this->IsPlayerControlled())) {
 		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, GetController(), 0.0f);
-	}
+	}*/
 }
 
 void AprojectCharacter::BeginPlay()
@@ -271,6 +273,7 @@ void AprojectCharacter::BeginPlay()
 	if (this->IsPlayerControlled()) {
 		WidgetManager->CreateGameScore();
 		WidgetManager->CreateAnalysisReport();
+		WidgetManager->CreateSoundAlarm();
 		WidgetManager->AddtoViewGameScore();
 		UE_LOG(LogTemp, Warning, TEXT("Create Success"));
 	}
@@ -615,6 +618,7 @@ void AprojectCharacter::onPerceptionUpdated(const TArray<AActor*>& DetectedPawn)
 void AprojectCharacter::DetectSound()
 {
 	UE_LOG(LogTemp, Warning, TEXT("DetectSound"));
+	WidgetManager->AddtoViewSoundAlarm();
 }
 
 AAnalysisManager* AprojectCharacter::GetAnalysisManager()

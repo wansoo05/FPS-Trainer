@@ -17,12 +17,16 @@ AWidgetManager::AWidgetManager()
 
 	static ConstructorHelpers::FClassFinder<UGameScore> GameScoreAsset(TEXT("/Game/UMG/UMGGameScore.UMGGameScore_C"));
 	static ConstructorHelpers::FClassFinder<UAnalysisWidget> AnalysisReportAsset(TEXT("/Game/UMG/UMGAnalysisReport.UMGAnalysisReport_C"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> SoundAlarmAsset(TEXT("/Game/UMG/UMGSoundAlaram.UMGSoundAlaram_C"));
 
 	if (GameScoreAsset.Succeeded())
 		GameScoreClass = GameScoreAsset.Class;
 
 	if (AnalysisReportAsset.Succeeded())
 		AnalysisReportClass = AnalysisReportAsset.Class;
+
+	if (SoundAlarmAsset.Succeeded())
+		SoundAlarmClass = SoundAlarmAsset.Class;
 }
 
 // Called when the game starts or when spawned
@@ -66,6 +70,17 @@ void AWidgetManager::CreateAnalysisReport()
 	}
 }
 
+void AWidgetManager::CreateSoundAlarm()
+{
+	if (IsValid(SoundAlarmClass))
+	{
+		SoundAlarmWidget = Cast<UUserWidget>(CreateWidget(GetWorld(), SoundAlarmClass));
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("The Widget Lost"));
+	}
+}
+
 void AWidgetManager::AddtoViewGameScore()
 {
 	if (IsValid(GameScoreWidget))
@@ -86,6 +101,17 @@ void AWidgetManager::AddtoViewAnalysisReport()
 		AnalysisReportWidget->SetReport(AnalysisManager->PistolAccuracy, AnalysisManager->RifleAccuracy, AnalysisManager->SniperAccuracy,
 			AnalysisManager->PistolAverageDistance, AnalysisManager->RifleAverageDistance,
 			AnalysisManager->SniperAverageDistance, AnalysisManager->HPCount);
+	}
+}
+
+void AWidgetManager::AddtoViewSoundAlarm()
+{
+	if (IsValid(SoundAlarmWidget))
+	{
+		SoundAlarmWidget->AddToViewport();
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("There is no SoundAlarmWidget"));
 	}
 }
 

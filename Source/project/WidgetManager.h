@@ -26,8 +26,11 @@ public:
 public:
 	void CreateGameScore();
 	void CreateAnalysisReport();
+	void CreateSoundAlarm();
+
 	void AddtoViewGameScore();
 	void AddtoViewAnalysisReport();
+	void AddtoViewSoundAlarm();
 
 	class UGameScore* GetGameScoreWidget();
 	class UAnalysisWidget* GetAnalysisReportWidget();
@@ -37,6 +40,9 @@ public:
 
 	TSubclassOf<UUserWidget> AnalysisReportClass;
 	class UAnalysisWidget* AnalysisReportWidget;
+
+	TSubclassOf<UUserWidget> SoundAlarmClass;
+	class UUserWidget* SoundAlarmWidget;
 
 	class AprojectCharacter* PlayerCharacter;
 
