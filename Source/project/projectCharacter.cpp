@@ -204,7 +204,7 @@ void AprojectCharacter::Attack()
 	IsAttacking = true;
 
 	FRotator MuzzleRotation = Camera->GetComponentRotation();
-	FVector MuzzleLocation = Camera->GetComponentLocation() + MuzzleRotation.RotateVector(FVector(30.0f, 0.0f, 0.0f));
+	FVector MuzzleLocation = Camera->GetComponentLocation() + MuzzleRotation.RotateVector(FVector(50.0f, 0.0f, 0.0f));
 
 	UWorld* World = GetWorld();
 
@@ -234,18 +234,18 @@ void AprojectCharacter::BeginPlay()
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AprojectCharacter::StaticClass(), FoundActors);
 
-	if (this->IsPlayerControlled()) {
-		if (this == FoundActors[0])
-			AI = Cast<AprojectCharacter>(FoundActors[1]);
-		else
-			AI = Cast<AprojectCharacter>(FoundActors[0]);
-	}
-	else {
-		if (this == FoundActors[0])
-			Player = Cast<AprojectCharacter>(FoundActors[1]);
-		else 
-			Player = Cast<AprojectCharacter>(FoundActors[0]);
-	}
+	//if (this->IsPlayerControlled()) {
+	//	if (this == FoundActors[0])
+	//		AI = Cast<AprojectCharacter>(FoundActors[1]);
+	//	else
+	//		AI = Cast<AprojectCharacter>(FoundActors[0]);
+	//}
+	//else {
+	//	if (this == FoundActors[0])
+	//		Player = Cast<AprojectCharacter>(FoundActors[1]);
+	//	else 
+	//		Player = Cast<AprojectCharacter>(FoundActors[0]);
+	//}
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetManager::StaticClass(), FoundActors);
 
@@ -270,16 +270,19 @@ void AprojectCharacter::BeginPlay()
 	}
 	
 
-	if (this->IsPlayerControlled()) {
-		WidgetManager->CreateGameScore();
-		WidgetManager->CreateAnalysisReport();
-		WidgetManager->CreateSoundAlarm();
-		WidgetManager->AddtoViewGameScore();
-		UE_LOG(LogTemp, Warning, TEXT("Create Success"));
-	}
+	if (WidgetManager != nullptr)
+	{
+		if (this->IsPlayerControlled()) {
+			WidgetManager->CreateGameScore();
+			WidgetManager->CreateAnalysisReport();
+			WidgetManager->CreateSoundAlarm();
+			WidgetManager->AddtoViewGameScore();
+			UE_LOG(LogTemp, Warning, TEXT("Create Success"));
+		}
 
-	GameScoreWidget = WidgetManager->GetGameScoreWidget();
-	AnalysisReportWidget = WidgetManager->GetAnalysisReportWidget();
+		GameScoreWidget = WidgetManager->GetGameScoreWidget();
+		AnalysisReportWidget = WidgetManager->GetAnalysisReportWidget();
+	}
 
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -355,7 +358,7 @@ void AprojectCharacter::HitActor(AActor* OtherActor)
 	FVector DistanceVector = this->GetActorLocation() - OtherActor->GetActorLocation();
 	float Distance = DistanceVector.Size();
 
-	if (this->IsPlayerControlled()) {
+	if (this->IsPlayerControlled() && AnalysisManager != nullptr) {
 		if (OtherActor->GetClass() == this->GetClass())
 		{
 			AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
@@ -618,7 +621,8 @@ void AprojectCharacter::onPerceptionUpdated(const TArray<AActor*>& DetectedPawn)
 void AprojectCharacter::DetectSound()
 {
 	UE_LOG(LogTemp, Warning, TEXT("DetectSound"));
-	WidgetManager->AddtoViewSoundAlarm();
+	if (WidgetManager != nullptr)
+		WidgetManager->AddtoViewSoundAlarm();
 }
 
 AAnalysisManager* AprojectCharacter::GetAnalysisManager()
