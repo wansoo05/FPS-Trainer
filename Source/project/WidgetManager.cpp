@@ -106,6 +106,8 @@ void AWidgetManager::AddtoViewAnalysisReport()
 
 void AWidgetManager::AddtoViewSoundAlarm()
 {
+	CreateSoundAlarm();
+
 	if (IsValid(SoundAlarmWidget))
 	{
 		SoundAlarmWidget->AddToViewport();
@@ -113,6 +115,11 @@ void AWidgetManager::AddtoViewSoundAlarm()
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("There is no SoundAlarmWidget"));
 	}
+}
+
+void AWidgetManager::RemoveSoundAlarm()
+{
+	SoundAlarmWidget->RemoveFromViewport();
 }
 
 UGameScore* AWidgetManager::GetGameScoreWidget()

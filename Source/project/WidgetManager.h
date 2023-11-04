@@ -32,6 +32,8 @@ public:
 	void AddtoViewAnalysisReport();
 	void AddtoViewSoundAlarm();
 
+	void RemoveSoundAlarm();
+
 	class UGameScore* GetGameScoreWidget();
 	class UAnalysisWidget* GetAnalysisReportWidget();
 

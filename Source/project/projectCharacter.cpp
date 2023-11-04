@@ -159,8 +159,9 @@ AprojectCharacter::AprojectCharacter()
 	}
 	IsAttacking = false;
 
-	AudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
-	AudioComp->SetupAttachment(Weapon);
+	GunAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("GunAudioComponent"));
+	GunAudioComp->SetupAttachment(Weapon);
+
 
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 
@@ -215,15 +216,13 @@ void AprojectCharacter::Attack()
 		World->SpawnActor<ABullet>(ProjectileClass, MuzzleLocation, MuzzleRotation);
 	}
 
-	AudioComp->Play(0.f);
+	GunAudioComp->Play(0.f);
 	MakeNoise(1.0f);
 	EmitterComponent->MakeNoise(this, 1.0f, GetActorForwardVector());
 
-	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, GetController(), 0.0f);
-
-	/*if (!(this->IsPlayerControlled())) {
+	if (!(this->IsPlayerControlled())) {
 		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, GetController(), 0.0f);
-	}*/
+	}
 }
 
 void AprojectCharacter::BeginPlay()
@@ -275,7 +274,6 @@ void AprojectCharacter::BeginPlay()
 		if (this->IsPlayerControlled()) {
 			WidgetManager->CreateGameScore();
 			WidgetManager->CreateAnalysisReport();
-			WidgetManager->CreateSoundAlarm();
 			WidgetManager->AddtoViewGameScore();
 			UE_LOG(LogTemp, Warning, TEXT("Create Success"));
 		}
@@ -393,6 +391,10 @@ void AprojectCharacter::Move(const FInputActionValue& Value)
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
+
+		if (!(this->IsPlayerControlled())) {
+			UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, GetController(), 0.0f);
+		}
 	}
 }
 
@@ -621,8 +623,19 @@ void AprojectCharacter::onPerceptionUpdated(const TArray<AActor*>& DetectedPawn)
 void AprojectCharacter::DetectSound()
 {
 	UE_LOG(LogTemp, Warning, TEXT("DetectSound"));
-	if (WidgetManager != nullptr)
-		WidgetManager->AddtoViewSoundAlarm();
+	if (this->IsPlayerControlled()) {
+		if (WidgetManager != nullptr) {
+			WidgetManager->AddtoViewSoundAlarm();
+
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AprojectCharacter::RemoveSoundAlarm, 3, false);
+		}
+	}
+}
+
+void AprojectCharacter::RemoveSoundAlarm()
+{
+	WidgetManager->RemoveSoundAlarm();
 }
 
 AAnalysisManager* AprojectCharacter::GetAnalysisManager()

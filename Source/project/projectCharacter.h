@@ -25,7 +25,10 @@ class AprojectCharacter : public ACharacter, public IGenericTeamAgentInterface
 		class UCameraComponent* FollowCamera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Audio, meta = (AllowPrivateAccess = "true"))
-		class UAudioComponent* AudioComp;
+		class UAudioComponent* GunAudioComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Audio, meta = (AllowPrivateAccess = "true"))
+		class UAudioComponent* RunAudioComp;
 
 	class ATargetPoint* PlayerTargetPoint;
 	class ATargetPoint* AITargetPoint;
@@ -138,6 +141,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void DetectSound();
+
+	void RemoveSoundAlarm();
 
 	class UInputAction* WeaponChangeUPAction;
 	class UInputAction* WeaponChangeDownAction;
