@@ -106,20 +106,25 @@ void AWidgetManager::AddtoViewAnalysisReport()
 
 void AWidgetManager::AddtoViewSoundAlarm()
 {
-	CreateSoundAlarm();
+	if (!isCreateSoundWidget) {
+		CreateSoundAlarm();
 
-	if (IsValid(SoundAlarmWidget))
-	{
-		SoundAlarmWidget->AddToViewport();
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("There is no SoundAlarmWidget"));
+		if (IsValid(SoundAlarmWidget))
+		{
+			SoundAlarmWidget->AddToViewport();
+			isCreateSoundWidget = true;
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("There is no SoundAlarmWidget"));
+		}
 	}
 }
 
 void AWidgetManager::RemoveSoundAlarm()
 {
+	isCreateSoundWidget = false; 
 	SoundAlarmWidget->RemoveFromViewport();
+	UE_LOG(LogTemp, Warning, TEXT("RemoveSoundAlarm"));
 }
 
 UGameScore* AWidgetManager::GetGameScoreWidget()

@@ -49,4 +49,6 @@ public:
 	class AprojectCharacter* PlayerCharacter;
 
 	class AAnalysisManager* AnalysisManager;
+
+	bool isCreateSoundWidget = false;
 };
