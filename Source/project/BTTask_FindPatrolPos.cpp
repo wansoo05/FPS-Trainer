@@ -37,6 +37,5 @@ EBTNodeResult::Type UBTTask_FindPatrolPos::ExecuteTask(UBehaviorTreeComponent& O
 		return EBTNodeResult::Succeeded;
 	}
 
-
 	return EBTNodeResult::Failed;
 }

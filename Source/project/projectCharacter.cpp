@@ -355,11 +355,11 @@ void AprojectCharacter::HitActor(AActor* OtherActor)
 	if (isStop) return;
 	FVector DistanceVector = this->GetActorLocation() - OtherActor->GetActorLocation();
 	float Distance = DistanceVector.Size();
+	AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
 
 	if (this->IsPlayerControlled() && AnalysisManager != nullptr) {
 		if (OtherActor->GetClass() == this->GetClass())
 		{
-			AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
 			HitCount += 1;
 			HitCharacter->CalculateHP(-1);
 			AnalysisManager->An_AddData(WeaponState, true, Distance);
@@ -391,10 +391,6 @@ void AprojectCharacter::Move(const FInputActionValue& Value)
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
-
-		if (!(this->IsPlayerControlled())) {
-			UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 1.0f, GetController(), 0.0f);
-		}
 	}
 }
 
@@ -575,8 +571,8 @@ void AprojectCharacter::Die()
 	else {
 		WidgetManager->GameScoreWidget->ScoreUP(0);
 	}
-
 	FTimerHandle TimerHandle;
+
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AprojectCharacter::Respawn, 3, false);
 }
 
