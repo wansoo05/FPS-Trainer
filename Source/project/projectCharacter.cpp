@@ -487,6 +487,7 @@ void AprojectCharacter::WeaponChange(int Num)
 	RMAnim->setMoveType(WeaponState);
 
 	if (WeaponState == 1) {
+		ProjectileClass.GetDefaultObject()->SetBulletSpeed(8000.f);
 		FName WeaponSocket(TEXT("pistol"));
 		if (GetMesh()->DoesSocketExist(WeaponSocket))
 		{
@@ -496,6 +497,7 @@ void AprojectCharacter::WeaponChange(int Num)
 		}
 	}
 	else if (WeaponState == 2) {
+		ProjectileClass.GetDefaultObject()->SetBulletSpeed(13000.f);
 		FName WeaponSocket(TEXT("rifle"));
 		if (GetMesh()->DoesSocketExist(WeaponSocket))
 		{
@@ -506,6 +508,7 @@ void AprojectCharacter::WeaponChange(int Num)
 		}
 	}
 	else if (WeaponState == 3) {
+		ProjectileClass.GetDefaultObject()->SetBulletSpeed(18000.f);
 		FName WeaponSocket(TEXT("sniper"));
 		if (GetMesh()->DoesSocketExist(WeaponSocket))
 		{

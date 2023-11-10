@@ -9,6 +9,8 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 #include "projectCharacter.h"
+#include "TrainingCharacter.h"
+#include "TargetActor.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -34,7 +36,7 @@ ABullet::ABullet()
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->UpdatedComponent = CollisionComponent;
 	ProjectileMovementComponent->InitialSpeed = 8000.0f;
-	ProjectileMovementComponent->MaxSpeed = 8000.0f;
+	ProjectileMovementComponent->MaxSpeed = 20000.0f;
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
 	ProjectileMovementComponent->bShouldBounce = false;
 	//ProjectileMovementComponent->Bounciness = 0.3f;
@@ -59,22 +61,35 @@ void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 	if (FireParticle == nullptr)
 		UE_LOG(LogTemp, Warning, TEXT("doesn't exist"));
 	UGameplayStatics::SpawnEmitterAtLocation(this, FireParticle, Hit.ImpactPoint);
-	AprojectCharacter* playerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-	playerCharacter->HitActor(OtherActor);
-	if (OtherActor == playerCharacter)
+	FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	if (LevelName == "Stylized_Egypt_Demo")
 	{
-		if (OtherActor->GetClass() == playerCharacter->GetClass())
+		AprojectCharacter* PlayerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		PlayerCharacter->HitActor(OtherActor);
+		if (OtherActor == PlayerCharacter)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "player");
+			if (OtherActor->GetClass() == PlayerCharacter->GetClass())
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "player");
+			}
+		}
+		else
+		{
+			if (OtherActor->GetClass() == PlayerCharacter->GetClass())
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "other");
+			}
 		}
 	}
-	else
+	else if (LevelName == "AimTrainingMap")
 	{
-		if (OtherActor->GetClass() == playerCharacter->GetClass())
+		if (OtherActor->ActorHasTag("Target"))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "other");
+			//UE_LOG(LogTemp, Warning, TEXT("Target Hit"));
+			ATargetActor* Target = Cast<ATargetActor>(OtherActor);
+			Target->Die();
 		}
+		//ATrainingCharacter* PlayerCharacter = Cast<ATrainingCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	}
 	Destroy();
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Hit");
@@ -85,4 +100,9 @@ void ABullet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ABullet::SetBulletSpeed(float Speed)
+{
+	ProjectileMovementComponent->InitialSpeed = Speed;
 }

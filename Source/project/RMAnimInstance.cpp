@@ -53,7 +53,7 @@ void URMAnimInstance::NativeUpdateAnimation(float deltaSeconds)
 
 void URMAnimInstance::PlayAttackMontage()
 {
-	int WeaponState{};
+	int WeaponState = 1;
 	auto Pawn = TryGetPawnOwner();
 	if (::IsValid(Pawn))
 	{
