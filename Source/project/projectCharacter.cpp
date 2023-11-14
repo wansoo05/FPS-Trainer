@@ -357,6 +357,7 @@ void AprojectCharacter::HitActor(AActor* OtherActor)
 	float Distance = DistanceVector.Size();
 	AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
 
+
 	if (this->IsPlayerControlled() && AnalysisManager != nullptr) {
 		if (OtherActor->GetClass() == this->GetClass())
 		{

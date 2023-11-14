@@ -72,17 +72,13 @@ public:
 public:
 	virtual void PostInitializeComponents() override;
 
-	UPROPERTY(VisibleAnyWhere, Category = Weapon)
 	UStaticMeshComponent* Weapon;
 
 	class UPawnNoiseEmitterComponent* EmitterComponent;
 
 	bool GetIsStop();
-
 	virtual void PossessedBy(AController* NewController) override;
-
 	void Attack();
-	 
 	class AAnalysisManager* GetAnalysisManager();
 
 	bool isStop = false;
