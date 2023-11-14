@@ -328,6 +328,7 @@ void AprojectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 		//Zooming
 		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &AprojectCharacter::Zoom);
+		EnhancedInputComponent->BindAction(ZoomAction, ETriggerEvent::Completed, this, &AprojectCharacter::ZoomOut);
 
 		//Run
 		EnhancedInputComponent->BindAction(RunAction, ETriggerEvent::Triggered, this, &AprojectCharacter::RunStart);
@@ -356,6 +357,7 @@ void AprojectCharacter::HitActor(AActor* OtherActor)
 	FVector DistanceVector = this->GetActorLocation() - OtherActor->GetActorLocation();
 	float Distance = DistanceVector.Size();
 	AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
+
 
 	if (this->IsPlayerControlled() && AnalysisManager != nullptr) {
 		if (OtherActor->GetClass() == this->GetClass())
@@ -430,6 +432,20 @@ void AprojectCharacter::FireEnd(const FInputActionValue& Value)
 
 void AprojectCharacter::Zoom(const FInputActionValue& Value)
 {
+	if (WeaponState == 3) {
+		Camera->SetFieldOfView(20.0f);
+	}
+	else if (WeaponState == 2) {
+		Camera->SetFieldOfView(50.0f);
+	}
+	else if (WeaponState == 1) {
+		Camera->SetFieldOfView(90.0f);
+	}
+}
+
+void AprojectCharacter::ZoomOut(const FInputActionValue& Value)
+{
+	Camera->SetFieldOfView(90.0f);
 }
 
 void AprojectCharacter::RunStart(const FInputActionValue& Value)
@@ -626,13 +642,15 @@ void AprojectCharacter::onPerceptionUpdated(const TArray<AActor*>& DetectedPawn)
 
 void AprojectCharacter::DetectSound()
 {
-	UE_LOG(LogTemp, Warning, TEXT("DetectSound"));
-	if (this->IsPlayerControlled()) {
-		if (WidgetManager != nullptr) {
-			WidgetManager->AddtoViewSoundAlarm();
+	if (isTrainingMode) {
+		UE_LOG(LogTemp, Warning, TEXT("DetectSound"));
+		if (this->IsPlayerControlled()) {
+			if (WidgetManager != nullptr) {
+				WidgetManager->AddtoViewSoundAlarm();
 
-			FTimerHandle TimerHandle;
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AprojectCharacter::RemoveSoundAlarm, 3, false);
+				FTimerHandle TimerHandle;
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AprojectCharacter::RemoveSoundAlarm, 3, false);
+			}
 		}
 	}
 }

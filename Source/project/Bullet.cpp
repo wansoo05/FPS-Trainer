@@ -59,6 +59,8 @@ void ABullet::BeginPlay()
 
 void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *(OtherActor->GetName()));
+
 	if (FireParticle == nullptr)
 		UE_LOG(LogTemp, Warning, TEXT("doesn't exist"));
 	UGameplayStatics::SpawnEmitterAtLocation(this, FireParticle, Hit.ImpactPoint);

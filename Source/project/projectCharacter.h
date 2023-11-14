@@ -69,20 +69,19 @@ class AprojectCharacter : public ACharacter, public IGenericTeamAgentInterface
 public:
 	AprojectCharacter();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isTrainingMode = true;
+
 public:
 	virtual void PostInitializeComponents() override;
 
-	UPROPERTY(VisibleAnyWhere, Category = Weapon)
 	UStaticMeshComponent* Weapon;
 
 	class UPawnNoiseEmitterComponent* EmitterComponent;
 
 	bool GetIsStop();
-
 	virtual void PossessedBy(AController* NewController) override;
-
 	void Attack();
-	 
 	class AAnalysisManager* GetAnalysisManager();
 
 	bool isStop = false;
@@ -120,6 +119,7 @@ protected:
 	void Fire(const FInputActionValue& Value);
 	void FireEnd(const FInputActionValue& Value);
 	void Zoom(const FInputActionValue& Value);
+	void ZoomOut(const FInputActionValue& Value);
 
 	void RunStart(const FInputActionValue& Value);
 	void RunStop(const FInputActionValue& Value);
@@ -166,6 +166,9 @@ protected:
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
+	int WeaponState = 1;
+
 private:
 	UPROPERTY(VisibleAnywhere, Category = Input)
 		class UInputMappingContext* DefaultContext;
@@ -180,7 +183,6 @@ private:
 		int HP = 1;
 	int MaxHP = 1;
 
-	int WeaponState = 1;
 
 	float ShootRate = 0.f;
 	int ShootCount = 0;
