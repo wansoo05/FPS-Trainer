@@ -27,6 +27,7 @@ public:
 	void CreateGameScore();
 	void CreateAnalysisReport();
 	void CreateSoundAlarm();
+	void CreateAimTrainingHUD();
 
 	void AddtoViewGameScore();
 	void AddtoViewAnalysisReport();
@@ -34,8 +35,10 @@ public:
 
 	void RemoveSoundAlarm();
 
+
 	class UGameScore* GetGameScoreWidget();
 	class UAnalysisWidget* GetAnalysisReportWidget();
+	class UAimTrainingHUD* GetAimTrainingHUDWidget();
 
 	TSubclassOf<UUserWidget> GameScoreClass;
 	class UGameScore* GameScoreWidget;
@@ -46,9 +49,13 @@ public:
 	TSubclassOf<UUserWidget> SoundAlarmClass;
 	class UUserWidget* SoundAlarmWidget;
 
+	TSubclassOf<UUserWidget> AimTrainingHUDClass;
+	class UAimTrainingHUD* AimTrainingHUDWidget;
+
 	class AprojectCharacter* PlayerCharacter;
 
 	class AAnalysisManager* AnalysisManager;
+
 
 	bool isCreateSoundWidget = false;
 };

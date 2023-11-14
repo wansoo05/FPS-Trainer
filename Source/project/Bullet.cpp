@@ -11,6 +11,7 @@
 #include "projectCharacter.h"
 #include "TrainingCharacter.h"
 #include "TargetActor.h"
+#include "AimTraingingGameMode.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -83,13 +84,19 @@ void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 	}
 	else if (LevelName == "AimTrainingMap")
 	{
+		ATrainingCharacter* PlayerCharacter = Cast<ATrainingCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		if (OtherActor->ActorHasTag("Target"))
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Target Hit"));
 			ATargetActor* Target = Cast<ATargetActor>(OtherActor);
-			Target->Die();
+			if (Target->IsDie == false)
+				Target->Die();
+			PlayerCharacter->SetRecommend();
+
 		}
-		//ATrainingCharacter* PlayerCharacter = Cast<ATrainingCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		else
+		{
+			PlayerCharacter->SetMouseSensitivity(GetActorForwardVector());
+		}
 	}
 	Destroy();
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Hit");

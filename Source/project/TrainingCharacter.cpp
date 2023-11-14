@@ -4,6 +4,9 @@
 #include "TrainingCharacter.h"
 #include "TrainingPlayerController.h"
 #include "RMAnimInstance.h"
+#include "TargetActor.h"
+#include "AimTrainingHUD.h"
+#include "WidgetManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -87,6 +90,9 @@ ATrainingCharacter::ATrainingCharacter()
 
 	GunAudioComp = CreateDefaultSubobject<UAudioComponent>(TEXT("GunAudioComponent"));
 	GunAudioComp->SetupAttachment(Weapon);
+
+	IsRight = false;
+
 }
 
 void ATrainingCharacter::PostInitializeComponents()
@@ -94,13 +100,12 @@ void ATrainingCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	RMAnim = Cast<URMAnimInstance>(GetMesh()->GetAnimInstance());
 	if (nullptr == RMAnim) return;
-
 	RMAnim->OnMontageEnded.AddDynamic(this, &ATrainingCharacter::onAttackMontageEnded);
+
 }
 
 void ATrainingCharacter::Attack()
 {
-	if (IsAttacking) return;
 
 	RMAnim->PlayAttackMontage();
 	IsAttacking = true;
@@ -109,7 +114,7 @@ void ATrainingCharacter::Attack()
 	FVector MuzzleLocation = Camera->GetComponentLocation() + MuzzleRotation.RotateVector(FVector(50.0f, 0.0f, 0.0f));
 
 	UWorld* World = GetWorld();
-
+	
 
 	if (ProjectileClass)
 	{
@@ -129,7 +134,32 @@ void ATrainingCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
 	Camera = this->FindComponentByClass<UCameraComponent>();
+	ProjectileClass.GetDefaultObject()->SetBulletSpeed(20000);
+
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetManager::StaticClass(), FoundActors);
+	if (FoundActors.Num() > 0)
+		WidgetManager = Cast<AWidgetManager>(FoundActors[0]);
+
+	if (WidgetManager != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("widgetAlive"));
+		WidgetManager->CreateAimTrainingHUD();
+		AimTrainingHUDWidget = WidgetManager->GetAimTrainingHUDWidget();
+		if (AimTrainingHUDWidget)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("HUDAlive"));
+			AimTrainingHUDWidget->AddToViewport();
+			AimTrainingHUDWidget->SetTextBlock(Sensitivity, Recommend);
+		}
+	}
+}
+
+void ATrainingCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
 }
 
 // Called every frame
@@ -137,6 +167,17 @@ void ATrainingCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FRotator CameraRotation = Camera->GetComponentRotation();
+	if (ArCameraRotators[CameraRoatorPos] != CameraRotation)
+	{
+		CameraRoatorPos++;
+		if (CameraRoatorPos >= 1000)
+		{
+			CameraRoatorPos = 0;
+		}
+
+		ArCameraRotators[CameraRoatorPos] = CameraRotation;
+	}
 }
 
 // Called to bind functionality to input
@@ -159,33 +200,65 @@ void ATrainingCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	}
 }
 
-void ATrainingCharacter::HitActor(AActor* OtherActor)
+void ATrainingCharacter::SetMouseSensitivity(FVector HitDirection)
 {
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetActor::StaticClass(), FoundActors);
+	ATargetActor* Target = Cast<ATargetActor>(FoundActors[0]);
 
+	//float DistanceFromTargetToPlayer = Target->GetDistanceTo(Player);
+	FVector TargetLocation = Target->GetActorLocation();
+	FVector PlayerToTarget = TargetLocation - GetActorLocation();
+	//float Sensitivity = 0;
+
+	if (PlayerToTarget.Cross(HitDirection).Z > 0)
+	{
+		if (IsRight == false)
+		{
+			Sensitivity += 0.1;
+		}
+		else
+		{
+			Sensitivity -= 0.1;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Hit Right"));
+	}
+	else
+	{
+		if (IsRight == false)
+		{
+			Sensitivity -= 0.1;
+		}
+		else
+		{
+			Sensitivity += 0.1;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("Hit Left"));
+	}
+	
+	AimTrainingHUDWidget->SetTextBlock(Sensitivity, Recommend);
 }
 
-//void ATrainingCharacter::Move(const FInputActionValue& Value)
-//{
-//	// input is a Vector2D
-//	FVector2D MovementVector = Value.Get<FVector2D>();
-//
-//	if (Controller != nullptr)
-//	{
-//		// find out which way is forward
-//		const FRotator Rotation = Controller->GetControlRotation();
-//		const FRotator YawRotation(0, Rotation.Yaw, 0);
-//
-//		// get forward vector
-//		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-//
-//		// get right vector 
-//		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-//
-//		// add movement 
-//		AddMovementInput(ForwardDirection, MovementVector.Y);
-//		AddMovementInput(RightDirection, MovementVector.X);
-//	}
-//}
+void ATrainingCharacter::SetIsAttacking(bool New)
+{
+	IsAttacking = New;
+}
+
+void ATrainingCharacter::SetRecommend()
+{
+	int32* HitCount = Recommend.Find(Sensitivity);
+	if (HitCount == nullptr)
+	{
+		Recommend.Add(Sensitivity, 1);
+	}
+	else
+	{
+		(*HitCount)++;
+	}
+	Recommend.ValueSort([](int32 A, int32 B) {return (A > B); });
+	AimTrainingHUDWidget->SetTextBlock(Sensitivity, Recommend);
+}
+
 
 void ATrainingCharacter::Look(const FInputActionValue& Value)
 {
@@ -203,26 +276,40 @@ void ATrainingCharacter::Look(const FInputActionValue& Value)
 }
 void ATrainingCharacter::Fire(const FInputActionValue& Value)
 {
-	//if (this->IsPlayerControlled()) 
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Player HP: %d"), HP);
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("AI HP: %d"), HP);
-	//}
+	if (IsAttacking) return;
 
+	if (CameraRoatorPos == 0)
+	{
+		if (ArCameraRotators[CameraRoatorPos].Yaw < ArCameraRotators[999].Yaw)
+		{
+			IsRight = false;
+		}
+		else
+		{
+			IsRight = true;
+		}
+	}
+	else
+	{
+		if (ArCameraRotators[CameraRoatorPos].Yaw < ArCameraRotators[CameraRoatorPos - 1].Yaw)
+		{
+			IsRight = false;
+		}
+		else
+		{
+			IsRight = true;
+		}
+	}
 	Attack();
 }
 
 void ATrainingCharacter::FireEnd(const FInputActionValue& Value)
 {
-	//IsAttacking = false;
 }
 
 void ATrainingCharacter::onAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (!IsAttacking) return;
-	IsAttacking = false;
+	//IsAttacking = false;
 	OnAttackEnd.Broadcast();
 }

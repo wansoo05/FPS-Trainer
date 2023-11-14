@@ -28,8 +28,7 @@ ATargetActor::ATargetActor()
 	}
 	StaticMeshTarget->SetupAttachment(RootComponent);
 
-	SetActorRelativeScale3D(FVector(10.0f, 10.0f, 10.0f));
-
+	SetActorRelativeScale3D(FVector(2.5f, 2.5f, 2.5f));
 	IsDie = false;
 }
 
@@ -43,6 +42,7 @@ void ATargetActor::BeginPlay()
 
 void ATargetActor::RandomSpawn()
 {
+	SetActorHiddenInGame(false);
 	IsDie = false;
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 	ATrainingCharacter* PlayerCharacter = Cast<ATrainingCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
@@ -53,6 +53,11 @@ void ATargetActor::RandomSpawn()
 
 	SetActorLocation(RandomSpwanLocation.Location);
 	SetActorRotation(TargetRot);
+	
+	PlayerCharacter->SetIsAttacking(false);
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATargetActor::RandomSpawn, 3, false);
 }
 
 // Called every frame
@@ -67,8 +72,7 @@ void ATargetActor::Die()
 	if (IsDie == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Target Hit"));
-		FTimerHandle TimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATargetActor::RandomSpawn, 3, false);
+		SetActorHiddenInGame(true);
 		IsDie = true;
 	}
 }

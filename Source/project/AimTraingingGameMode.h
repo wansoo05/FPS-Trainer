@@ -17,6 +17,4 @@ class PROJECT_API AAimTraingingGameMode : public AGameModeBase
 public:
 	AAimTraingingGameMode();
 
-protected:
-	//virtual void InitGame() override;
 };

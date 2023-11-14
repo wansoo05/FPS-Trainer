@@ -6,6 +6,8 @@
 #include "AnalysisWidget.h"
 #include "AnalysisManager.h"	
 #include "projectCharacter.h"
+#include "TrainingCharacter.h"
+#include "AimTrainingHUD.h"
 
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,6 +20,7 @@ AWidgetManager::AWidgetManager()
 	static ConstructorHelpers::FClassFinder<UGameScore> GameScoreAsset(TEXT("/Game/UMG/UMGGameScore.UMGGameScore_C"));
 	static ConstructorHelpers::FClassFinder<UAnalysisWidget> AnalysisReportAsset(TEXT("/Game/UMG/UMGAnalysisReport.UMGAnalysisReport_C"));
 	static ConstructorHelpers::FClassFinder<UUserWidget> SoundAlarmAsset(TEXT("/Game/UMG/UMGSoundAlaram.UMGSoundAlaram_C"));
+	static ConstructorHelpers::FClassFinder<UAimTrainingHUD> AimTrainingHUDAsset(TEXT("/Game/UMG/UMGAimTrainingHUD.UMGAimTrainingHUD_C"));
 
 	if (GameScoreAsset.Succeeded())
 		GameScoreClass = GameScoreAsset.Class;
@@ -27,6 +30,15 @@ AWidgetManager::AWidgetManager()
 
 	if (SoundAlarmAsset.Succeeded())
 		SoundAlarmClass = SoundAlarmAsset.Class;
+
+	if (AimTrainingHUDAsset.Succeeded())
+	{
+		AimTrainingHUDClass = AimTrainingHUDAsset.Class;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("The Class Lost"));
+	}
 }
 
 // Called when the game starts or when spawned
@@ -34,8 +46,16 @@ void AWidgetManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	AnalysisManager = PlayerCharacter->GetAnalysisManager();
+	FString LevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
+	if (LevelName == "Stylized_Egypt_Demo")
+	{
+		PlayerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		AnalysisManager = PlayerCharacter->GetAnalysisManager();
+	}
+	else if (LevelName == "AimTrainingMap")
+	{
+		//PlayerCharacter = Cast<ATrainingCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	}
 }
 
 // Called every frame
@@ -77,6 +97,18 @@ void AWidgetManager::CreateSoundAlarm()
 		SoundAlarmWidget = Cast<UUserWidget>(CreateWidget(GetWorld(), SoundAlarmClass));
 	}
 	else {
+		UE_LOG(LogTemp, Warning, TEXT("The Widget Lost"));
+	}
+}
+
+void AWidgetManager::CreateAimTrainingHUD()
+{
+	if (IsValid(AimTrainingHUDClass))
+	{
+		AimTrainingHUDWidget = Cast<UAimTrainingHUD>(CreateWidget(GetWorld(), AimTrainingHUDClass));
+	}
+	else
+	{
 		UE_LOG(LogTemp, Warning, TEXT("The Widget Lost"));
 	}
 }
@@ -135,5 +167,10 @@ UGameScore* AWidgetManager::GetGameScoreWidget()
 UAnalysisWidget* AWidgetManager::GetAnalysisReportWidget()
 {
 	return AnalysisReportWidget;
+}
+
+UAimTrainingHUD* AWidgetManager::GetAimTrainingHUDWidget()
+{
+	return AimTrainingHUDWidget;
 }
 

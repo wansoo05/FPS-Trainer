@@ -145,11 +145,11 @@ AprojectCharacter::AprojectCharacter()
 		MouseSensitivityAction = IA_MouseSensitivity.Object;
 	}
 
+	Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WEAPON"));
 	FName WeaponSocket(TEXT("pistol"));
 	if (GetMesh()->DoesSocketExist(WeaponSocket))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("weapon!"));
-		Weapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WEAPON"));
+		//UE_LOG(LogTemp, Warning, TEXT("WeaponSocket exist"));
 		static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_WEAPON(TEXT("/Game/Weapon/Gun/gun/SMg18"));
 		if (SM_WEAPON.Succeeded())
 		{
@@ -498,6 +498,11 @@ void AprojectCharacter::WeaponChange(int Num)
 		if (GetMesh()->DoesSocketExist(WeaponSocket))
 		{
 			UStaticMesh* SM_Rifle = Cast<UStaticMesh>(StaticLoadObject(UStaticMesh::StaticClass(), NULL, TEXT("/Game/Weapon/Riple/scarL")));
+			if (Weapon == nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Weapon is nullptr!!"));
+				return;
+			}
 			Weapon->SetStaticMesh(SM_Rifle);
 			Weapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
 			//UE_LOG(LogTemp, Warning, TEXT("%s"), Weapon);

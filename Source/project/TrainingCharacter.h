@@ -40,6 +40,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -59,10 +61,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Projectile)
 	TSubclassOf<class ABullet> ProjectileClass;
 
-	void HitActor(AActor* OtherActor);
+	void SetMouseSensitivity(FVector HitDirection);
+	void SetIsAttacking(bool New);
+	void SetRecommend();
 
 protected:
-	//void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Fire(const FInputActionValue& Value);
 	void FireEnd(const FInputActionValue& Value);
@@ -77,7 +80,18 @@ private:
 	UPROPERTY()
 	class URMAnimInstance* RMAnim;
 
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = MouseSensitivity, Meta = (AllowPrivateAccess = true))
 	float Sensitivity = 1.0f;
 
+	FRotator ArCameraRotators[1000]{};
+	int CameraRoatorPos{};
+	bool IsRight{};
+
 	class UCameraComponent* Camera;
+
+	class AWidgetManager* WidgetManager;
+	class UAimTrainingHUD* AimTrainingHUDWidget;
+
+	UPROPERTY()
+	TMap<float, int32> Recommend;
 };

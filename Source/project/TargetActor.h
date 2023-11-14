@@ -21,7 +21,6 @@ protected:
 	
 private:
 	void RandomSpawn();
-	bool IsDie;
 
 public:	
 	// Called every frame
@@ -32,6 +31,8 @@ public:
 
 	UPROPERTY(VisibleAnyWhere, Category = STATICMESH)
 	UStaticMeshComponent* StaticMeshTarget;
+
+	bool IsDie;
 
 	void Die();
 

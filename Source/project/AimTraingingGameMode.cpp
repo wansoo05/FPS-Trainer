@@ -3,6 +3,11 @@
 
 #include "AimTraingingGameMode.h"
 #include "TrainingPlayerController.h"
+#include "AimTrainingGameStateBase.h"
+#include "AimTrainingHUD.h"
+#include "TrainingCharacter.h"
+#include "TargetActor.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 AAimTraingingGameMode::AAimTraingingGameMode()
 {
@@ -13,6 +18,5 @@ AAimTraingingGameMode::AAimTraingingGameMode()
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 		PlayerControllerClass = ATrainingPlayerController::StaticClass();
 	}
-
-
+	GameStateClass = AAimTrainingGameStateBase::StaticClass();
 }
