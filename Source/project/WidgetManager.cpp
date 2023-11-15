@@ -52,8 +52,9 @@ void AWidgetManager::BeginPlay()
 		PlayerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		
 		TArray<AActor*> FoundActors{};
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AprojectCharacter::StaticClass(), FoundActors);
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAnalysisManager::StaticClass(), FoundActors);
 		AnalysisManager = Cast<AAnalysisManager>(FoundActors[0]);
+		UE_LOG(LogTemp, Warning, TEXT("AnalysisManager: %s"), *(AnalysisManager->GetName()));
 	}
 	else if (LevelName == "AimTrainingMap")
 	{
@@ -128,16 +129,14 @@ void AWidgetManager::AddtoViewAnalysisReport()
 {
 	if (AnalysisReportWidget)
 	{
+		
 		AnalysisManager->An_CalculateData();
 
 		AnalysisReportWidget->AddToViewport();
 
-		UE_LOG(LogTemp, Warning, TEXT("%f"), AnalysisManager->PistolAccuracy);
-		/*AnalysisReportWidget->SetReport(AnalysisManager->PistolAccuracy, AnalysisManager->RifleAccuracy, AnalysisManager->SniperAccuracy,
+		AnalysisReportWidget->SetReport(AnalysisManager->PistolAccuracy, AnalysisManager->RifleAccuracy, AnalysisManager->SniperAccuracy,
 			AnalysisManager->PistolAverageDistance, AnalysisManager->RifleAverageDistance,
-			AnalysisManager->SniperAverageDistance, AnalysisManager->HPCount);*/
-
-
+			AnalysisManager->SniperAverageDistance, AnalysisManager->HPCount);
 	}
 }
 
