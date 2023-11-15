@@ -129,7 +129,6 @@ void AWidgetManager::AddtoViewAnalysisReport()
 {
 	if (AnalysisReportWidget)
 	{
-		
 		AnalysisManager->An_CalculateData();
 
 		AnalysisReportWidget->AddToViewport();

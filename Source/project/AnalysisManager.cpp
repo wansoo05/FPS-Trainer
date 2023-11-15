@@ -134,6 +134,8 @@ void AAnalysisManager::An_CalculateData()
 		SniperAverageDistance = SniperDistance / SniperFireCount;
 	}
 	HPCount = 0;
+
+	UE_LOG(LogTemp, Warning, TEXT("Calculate Finish %f"), PistolAccuracy);
 }
 
 void AAnalysisManager::An_PrintData()
