@@ -31,7 +31,7 @@ class AprojectCharacter : public ACharacter, public IGenericTeamAgentInterface
 		class UAudioComponent* RunAudioComp;
 
 	class ATargetPoint* PlayerTargetPoint;
-	class ATargetPoint* AITargetPoint;
+	class ATargetPoint* AITargetPoint[8];
 	
 	class UAIPerceptionComponent* AIPerceptionComponent;
 

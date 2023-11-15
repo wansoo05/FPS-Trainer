@@ -12,6 +12,7 @@
 #include "projectAIController.h"
 #include "NavigationSystem.h"
 #include "Bullet.h"
+#include "projectGameMode.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -37,6 +38,9 @@
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+
+#include <cstdlib>
+#include <ctime>
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -231,20 +235,6 @@ void AprojectCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AprojectCharacter::StaticClass(), FoundActors);
-
-	//if (this->IsPlayerControlled()) {
-	//	if (this == FoundActors[0])
-	//		AI = Cast<AprojectCharacter>(FoundActors[1]);
-	//	else
-	//		AI = Cast<AprojectCharacter>(FoundActors[0]);
-	//}
-	//else {
-	//	if (this == FoundActors[0])
-	//		Player = Cast<AprojectCharacter>(FoundActors[1]);
-	//	else 
-	//		Player = Cast<AprojectCharacter>(FoundActors[0]);
-	//}
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetManager::StaticClass(), FoundActors);
 
@@ -263,9 +253,11 @@ void AprojectCharacter::BeginPlay()
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATargetPoint::StaticClass(), FoundActors);
 
-	if (FoundActors.Num() > 1) {
+	if (FoundActors.Num() > 0)
 		PlayerTargetPoint = Cast<ATargetPoint>(FoundActors[0]);
-		AITargetPoint = Cast<ATargetPoint>(FoundActors[1]);
+	for (int i = 1; i < FoundActors.Num(); i++)
+	{
+		AITargetPoint[i] = Cast<ATargetPoint>(FoundActors[i]);
 	}
 	
 
@@ -600,21 +592,17 @@ void AprojectCharacter::Die()
 void AprojectCharacter::Respawn()
 {
 	HP = MaxHP;
-	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
-	FVector OriginLocation{};
-	FNavLocation RandomSpwanLocation{};
+	int RandomNumber{};
 
-	OriginLocation = GetActorLocation();
-	NavSystem->GetRandomPoint(RandomSpwanLocation);
-	//NavSystem->GetRandomPointInNavigableRadius(OriginLocation, 3000.0f, RandomSpawnLocation);
 	if (this->IsPlayerControlled()) {
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		EnableInput(PlayerController);
 		SetActorLocation(PlayerTargetPoint->GetActorLocation());
 	}
 	else {
-		SetActorLocation(RandomSpwanLocation.Location);
-		//UE_LOG(LogTemp, Warning, TEXT("%f"), RandomSpwanLocation.Location);
+		srand((unsigned int)time(NULL));
+		RandomNumber = (int)rand() % 10;
+		SetActorLocation(AITargetPoint[RandomNumber]->GetActorLocation());
 	}
 
 	isStop = false;
