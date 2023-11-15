@@ -50,7 +50,10 @@ void AWidgetManager::BeginPlay()
 	if (LevelName == "Stylized_Egypt_Demo")
 	{
 		PlayerCharacter = Cast<AprojectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		AnalysisManager = PlayerCharacter->GetAnalysisManager();
+		
+		TArray<AActor*> FoundActors{};
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AprojectCharacter::StaticClass(), FoundActors);
+		AnalysisManager = Cast<AAnalysisManager>(FoundActors[0]);
 	}
 	else if (LevelName == "AimTrainingMap")
 	{
@@ -82,8 +85,8 @@ void AWidgetManager::CreateAnalysisReport()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Create AnalysisWidget 1"));
 		AnalysisReportWidget = Cast<UAnalysisWidget>(CreateWidget(GetWorld(), AnalysisReportClass));
-		AnalysisReportWidget->AddToViewport();
-		AnalysisReportWidget->RemoveFromParent();
+		//AnalysisReportWidget->AddToViewport();
+		//AnalysisReportWidget->RemoveFromParent();
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("The Widget Lost"));
@@ -125,14 +128,16 @@ void AWidgetManager::AddtoViewAnalysisReport()
 {
 	if (AnalysisReportWidget)
 	{
-		AnalysisManager = PlayerCharacter->GetAnalysisManager();
 		AnalysisManager->An_CalculateData();
 
 		AnalysisReportWidget->AddToViewport();
 
-		AnalysisReportWidget->SetReport(AnalysisManager->PistolAccuracy, AnalysisManager->RifleAccuracy, AnalysisManager->SniperAccuracy,
+		UE_LOG(LogTemp, Warning, TEXT("%f"), AnalysisManager->PistolAccuracy);
+		/*AnalysisReportWidget->SetReport(AnalysisManager->PistolAccuracy, AnalysisManager->RifleAccuracy, AnalysisManager->SniperAccuracy,
 			AnalysisManager->PistolAverageDistance, AnalysisManager->RifleAverageDistance,
-			AnalysisManager->SniperAverageDistance, AnalysisManager->HPCount);
+			AnalysisManager->SniperAverageDistance, AnalysisManager->HPCount);*/
+
+
 	}
 }
 

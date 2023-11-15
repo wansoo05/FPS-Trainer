@@ -13,6 +13,7 @@
 #include "NavigationSystem.h"
 #include "Bullet.h"
 #include "projectGameMode.h"
+#include "ProjectGameInstance.h"
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -33,6 +34,7 @@
 #include "Perception/AISense.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Components/PawnNoiseEmitterComponent.h"
+#include "Math/RandomStream.h"
 
 #include "Components/WidgetComponent.h"
 #include "Blueprint/UserWidget.h"
@@ -234,7 +236,22 @@ void AprojectCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 
+
+	Sensitivity = Cast<UProjectGameInstance>(GetGameInstance())->MouseSensitivity;
+
 	TArray<AActor*> FoundActors;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AprojectCharacter::StaticClass(), FoundActors);
+	if (FoundActors.Num() == 2) {
+		if ((Cast<AprojectCharacter>(FoundActors[0]))->IsPlayerControlled()) {
+			Player = Cast<AprojectCharacter>(FoundActors[0]);
+			AI = Cast<AprojectCharacter>(FoundActors[1]);
+		}
+		else {
+			Player = Cast<AprojectCharacter>(FoundActors[1]);
+			AI = Cast<AprojectCharacter>(FoundActors[0]);
+		}
+	}
 
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWidgetManager::StaticClass(), FoundActors);
 
@@ -350,19 +367,30 @@ void AprojectCharacter::HitActor(AActor* OtherActor)
 	float Distance = DistanceVector.Size();
 	AprojectCharacter* HitCharacter = Cast<AprojectCharacter>(OtherActor);
 
+	UE_LOG(LogTemp, Warning, TEXT("this: %s"), *(this->GetName()));
+
 
 	if (this->IsPlayerControlled() && AnalysisManager != nullptr) {
 		if (OtherActor->GetClass() == this->GetClass())
 		{
 			HitCount += 1;
 			HitCharacter->CalculateHP(-1);
+
 			AnalysisManager->An_AddData(WeaponState, true, Distance);
+			//AnalysisManager->An_AddData(WeaponState, true);
 		}
 		else
 		{
 			AnalysisManager->An_AddData(WeaponState, false, Distance);
+			//AnalysisManager->An_AddData(WeaponState, false);
 		}
 	}
+
+}
+
+float AprojectCharacter::GetSensitivity()
+{
+	return Sensitivity;
 }
 
 void AprojectCharacter::Move(const FInputActionValue& Value)
@@ -594,14 +622,18 @@ void AprojectCharacter::Respawn()
 	HP = MaxHP;
 	int RandomNumber{};
 
+	FRandomStream Random = FRandomStream();
+
 	if (this->IsPlayerControlled()) {
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		EnableInput(PlayerController);
 		SetActorLocation(PlayerTargetPoint->GetActorLocation());
 	}
 	else {
-		srand((unsigned int)time(NULL));
-		RandomNumber = (int)rand() % 10;
+		Random.GenerateNewSeed();
+		RandomNumber = Random.RandRange(1, 8);
+		RandomNumber = 3;
+		UE_LOG(LogTemp, Warning, TEXT("Random Number: %d"), RandomNumber);
 		SetActorLocation(AITargetPoint[RandomNumber]->GetActorLocation());
 	}
 
@@ -612,6 +644,12 @@ void AprojectCharacter::Respawn()
 	//	AI->isStop = false;
 	//else
 	//	Player->isStop = false;
+}
+
+void AprojectCharacter::RespawnAllCharacter()
+{
+	Player->Respawn();
+	AI->Respawn();
 }
 
 bool AprojectCharacter::isHitAim()

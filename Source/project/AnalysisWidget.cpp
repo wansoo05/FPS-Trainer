@@ -17,6 +17,7 @@ void UAnalysisWidget::SetReport(float PistolAccuracy, float RifleAccuracy, float
 	float PistolAverageDistance, float RifleAverageDistance, float SniperAverageDistance,
 	int HPCount)
 {
+	UE_LOG(LogTemp, Warning, TEXT("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
 	if (this != nullptr) {
 		PistolAccuracyTextBlock->SetText(FText::AsNumber(PistolAccuracy));
 		RifleAccuracyTextBlock->SetText(FText::AsNumber(RifleAccuracy));

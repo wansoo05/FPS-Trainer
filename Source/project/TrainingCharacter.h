@@ -81,7 +81,7 @@ private:
 	class URMAnimInstance* RMAnim;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = MouseSensitivity, Meta = (AllowPrivateAccess = true))
-	float Sensitivity = 1.0f;
+	float Sensitivity = 0.5f;
 
 	FRotator ArCameraRotators[1000]{};
 	int CameraRoatorPos{};

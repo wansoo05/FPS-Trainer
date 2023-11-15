@@ -59,7 +59,7 @@ void ABullet::BeginPlay()
 
 void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *(OtherActor->GetName()));
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *(OtherActor->GetName()));
 
 	if (FireParticle == nullptr)
 		UE_LOG(LogTemp, Warning, TEXT("doesn't exist"));
@@ -73,14 +73,14 @@ void ABullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitive
 		{
 			if (OtherActor->GetClass() == PlayerCharacter->GetClass())
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "player");
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "player");
 			}
 		}
 		else
 		{
 			if (OtherActor->GetClass() == PlayerCharacter->GetClass())
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "other");
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "other");
 			}
 		}
 	}

@@ -29,6 +29,7 @@ public:
 	void An_HPCount();
 
 	void An_AddData(int Weapon, bool Hit, float Distance);
+	void An_AddData(int Weapon, bool Hit);
 
 	void An_CalculateData();
 

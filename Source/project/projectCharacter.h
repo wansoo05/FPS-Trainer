@@ -31,7 +31,7 @@ class AprojectCharacter : public ACharacter, public IGenericTeamAgentInterface
 		class UAudioComponent* RunAudioComp;
 
 	class ATargetPoint* PlayerTargetPoint;
-	class ATargetPoint* AITargetPoint[8];
+	class ATargetPoint* AITargetPoint[9];
 	
 	class UAIPerceptionComponent* AIPerceptionComponent;
 
@@ -110,6 +110,8 @@ public:
 
 	void HitActor(AActor* OtherActor);
 
+	float GetSensitivity();
+
 protected:
 
 	FGenericTeamId TeamId;
@@ -133,6 +135,7 @@ protected:
 	void Die();
 
 	void Respawn();
+	void RespawnAllCharacter();
 
 	bool isHitAim();
 
@@ -181,7 +184,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 		int HP = 1;
-	int MaxHP = 1;
+	int MaxHP = 5;
 
 
 	float ShootRate = 0.f;
@@ -196,7 +199,7 @@ private:
 	int MaxRifleBullet = 30;
 	int MaxSniperBullet = 2;
 
-	float Sensitivity = 1.0f;
+	float Sensitivity = 0.5f;
 
 	class UCameraComponent* Camera;
 	AprojectCharacter* AI;

@@ -31,7 +31,7 @@ public:
 	UPROPERTY()
 	class UGameplayStatics* GameStatic;
 
-	UPROPERTY()
+	//UPROPERTY()
 	class UParticleSystem* FireParticle;
 
 protected:

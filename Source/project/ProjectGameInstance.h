@@ -14,4 +14,7 @@ class PROJECT_API UProjectGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MouseSensitivity = 1.5f;
 };

@@ -26,6 +26,7 @@ public:
 
 	float MyScore = 0;
 	float AIScore = 0;
+	int MaxScore = 2;
 
 	class AWidgetManager* WidgetManager;
 

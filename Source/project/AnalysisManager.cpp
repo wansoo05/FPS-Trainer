@@ -76,16 +76,64 @@ void AAnalysisManager::An_AddData(int Weapon, bool Hit, float Distance)
 	}
 }
 
+void AAnalysisManager::An_AddData(int Weapon, bool Hit)
+{
+	An_FireCount();
+
+	switch (Weapon)
+	{
+	case 1:
+		PistolFireCount += 1;
+		if (Hit == true) {
+			PistolHitCount += 1;
+		}
+		break;
+
+	case 2:
+		RifleFireCount += 1;
+		if (Hit == true) {
+			RifleHitCount += 1;
+		}
+		break;
+
+	case 3:
+		SniperFireCount += 1;
+		if (Hit == true) {
+			SniperHitCount += 1;
+		}
+		break;
+	}
+}
+
 void AAnalysisManager::An_CalculateData()
 {
+	if (PistolFireCount == 0) {
+		PistolAccuracy = 0.f;
+		PistolAverageDistance = 0.f;
+	}
+	else {
+		PistolAccuracy = PistolHitCount / PistolFireCount;
+		PistolAverageDistance = PistolDistance / PistolFireCount;
+	}
 
-	PistolAccuracy = PistolHitCount / PistolFireCount;
-	RifleAccuracy = RifleHitCount / RifleFireCount;
-	SniperAccuracy = SniperHitCount / SniperFireCount;
+	if (RifleFireCount == 0) {
+		RifleAccuracy = 0.f;
+		RifleAverageDistance = 0.f;
+	}
+	else {
+		RifleAccuracy = RifleHitCount / RifleFireCount;
+		RifleAverageDistance = RifleDistance / RifleFireCount;
+	}
 
-	PistolAverageDistance = PistolDistance / PistolFireCount;
-	RifleAverageDistance = RifleDistance / RifleFireCount;
-	SniperAverageDistance = SniperDistance / SniperFireCount;
+	if (SniperFireCount == 0) {
+		SniperAccuracy = 0.f;
+		SniperAverageDistance = 0.f;
+	}
+	else {
+		SniperAccuracy = SniperHitCount / SniperFireCount;
+		SniperAverageDistance = SniperDistance / SniperFireCount;
+	}
+	HPCount = 0;
 }
 
 void AAnalysisManager::An_PrintData()
